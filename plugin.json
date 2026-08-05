@@ -1,0 +1,26 @@
+{
+    "id": "com.github.taku-devjp.freedesk",
+    "name": "Free Desk",
+    "description": "Mattermost plugin for free desk (hot desk) reservations.",
+    "homepage_url": "https://github.com/taku-devjp/mattermost-plugin-freedesk",
+    "support_url": "https://github.com/taku-devjp/mattermost-plugin-freedesk/issues",
+    "icon_path": "assets/starter-template-icon.svg",
+    "min_server_version": "9.0.0",
+    "server": {
+        "executables": {
+            "linux-amd64": "server/dist/plugin-linux-amd64",
+            "linux-arm64": "server/dist/plugin-linux-arm64",
+            "darwin-amd64": "server/dist/plugin-darwin-amd64",
+            "darwin-arm64": "server/dist/plugin-darwin-arm64",
+            "windows-amd64": "server/dist/plugin-windows-amd64.exe"
+        }
+    },
+    "webapp": {
+        "bundle_path": "webapp/dist/main.js"
+    },
+    "settings_schema": {
+        "header": "",
+        "footer": "",
+        "settings": []
+    }
+}
