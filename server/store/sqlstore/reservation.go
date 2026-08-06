@@ -12,7 +12,7 @@ import (
 // GetReservation returns a reservation by ID.
 func (s *SQLStore) GetReservation(id string) (*freedeskmodel.Reservation, error) {
 	query, args, err := s.builder.
-		Select("r.id", "r.desk_id", "r.user_id", "r.reserve_date", "r.note", "r.create_at", "r.update_at", "r.delete_at", "d.name AS desk_name").
+		Select("r.id", "r.desk_id", "r.user_id", s.selectReserveDateColumn(), "r.note", "r.create_at", "r.update_at", "r.delete_at", "d.name AS desk_name").
 		From("freedesk_reservations r").
 		Join("freedesk_desks d ON d.id = r.desk_id").
 		Where("r.id = ? AND r.delete_at = 0", id).
@@ -50,7 +50,7 @@ func scanReservationWithDesk(scanner interface{ Scan(...any) error }) (*freedesk
 // GetReservationsByDateRange returns active reservations in a date range for active desks.
 func (s *SQLStore) GetReservationsByDateRange(locationID, startDate, endDate string) ([]*freedeskmodel.Reservation, error) {
 	q := s.builder.
-		Select("r.id", "r.desk_id", "r.user_id", "r.reserve_date", "r.note", "r.create_at", "r.update_at", "r.delete_at", "d.name AS desk_name").
+		Select("r.id", "r.desk_id", "r.user_id", s.selectReserveDateColumn(), "r.note", "r.create_at", "r.update_at", "r.delete_at", "d.name AS desk_name").
 		From("freedesk_reservations r").
 		Join("freedesk_desks d ON d.id = r.desk_id").
 		Where("r.delete_at = 0").
@@ -94,7 +94,7 @@ func (s *SQLStore) GetReservationsByUser(userID, today string, limit int) ([]*fr
 	}
 
 	query, args, err := s.builder.
-		Select("r.id", "r.desk_id", "r.user_id", "r.reserve_date", "r.note", "r.create_at", "r.update_at", "r.delete_at", "d.name AS desk_name").
+		Select("r.id", "r.desk_id", "r.user_id", s.selectReserveDateColumn(), "r.note", "r.create_at", "r.update_at", "r.delete_at", "d.name AS desk_name").
 		From("freedesk_reservations r").
 		Join("freedesk_desks d ON d.id = r.desk_id").
 		Where("r.user_id = ? AND r.delete_at = 0 AND r.reserve_date >= ?", userID, today).

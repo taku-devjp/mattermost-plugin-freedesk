@@ -57,6 +57,18 @@ func (s *SQLStore) isPostgres() bool {
 	return s.driverName == model.DatabaseDriverPostgres
 }
 
+// selectReserveDateColumn returns reserve_date as text for consistent scanning across drivers.
+func (s *SQLStore) selectReserveDateColumn() string {
+	switch s.driverName {
+	case driverPostgres:
+		return "TO_CHAR(r.reserve_date, 'YYYY-MM-DD') AS reserve_date"
+	case driverMysql:
+		return "DATE_FORMAT(r.reserve_date, '%Y-%m-%d') AS reserve_date"
+	default:
+		return "r.reserve_date"
+	}
+}
+
 func (s *SQLStore) tableExists(tableName string) (bool, error) {
 	var query string
 	switch s.driverName {

@@ -124,7 +124,8 @@ export async function executeConfirm(dispatch: Dispatch, dialog: ConfirmDialogSt
         if (dialog.action === 'book' || dialog.action === 'cancel' || dialog.action === 'proxy_cancel') {
             const reloadYear = year || new Date().getFullYear();
             const reloadMonth = month || (new Date().getMonth() + 1);
-            await loadMatrix(dispatch, reloadYear, reloadMonth);
+            const matrix = await client.getMatrix(reloadYear, reloadMonth);
+            dispatch({type: ActionTypes.SET_MATRIX, matrix});
         }
     } catch (err) {
         const message = err instanceof client.APIError ? err.message : '操作に失敗しました。';

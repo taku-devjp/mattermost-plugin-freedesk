@@ -4,6 +4,19 @@ import type {APIErrorBody, ConfigData, Desk, Location, MatrixData, Reservation} 
 
 const API_BASE = `/plugins/${manifest.id}/api/v1`;
 
+function getCSRFFromCookie(): string {
+    if (typeof document === 'undefined' || typeof document.cookie === 'undefined') {
+        return '';
+    }
+    for (const cookie of document.cookie.split(';')) {
+        const trimmed = cookie.trim();
+        if (trimmed.startsWith('MMCSRF=')) {
+            return trimmed.slice('MMCSRF='.length);
+        }
+    }
+    return '';
+}
+
 export class APIError extends Error {
     code: string;
     details?: Record<string, unknown>;
@@ -16,13 +29,23 @@ export class APIError extends Error {
 }
 
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
+    const method = (options.method || 'GET').toUpperCase();
+    const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest',
+        ...(options.headers as Record<string, string> | undefined),
+    };
+    if (method !== 'GET') {
+        const csrfToken = getCSRFFromCookie();
+        if (csrfToken) {
+            headers['X-CSRF-Token'] = csrfToken;
+        }
+    }
+
     const response = await fetch(`${API_BASE}${path}`, {
-        credentials: 'same-origin',
-        headers: {
-            'Content-Type': 'application/json',
-            ...(options.headers || {}),
-        },
         ...options,
+        credentials: 'same-origin',
+        headers,
     });
 
     if (response.status === 204) {
@@ -31,7 +54,10 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
 
     const body = await response.json();
     if (!response.ok) {
-        throw new APIError(body.error);
+        if (body?.error) {
+            throw new APIError(body.error);
+        }
+        throw new Error(`HTTP ${response.status}`);
     }
     return body.data as T;
 }
