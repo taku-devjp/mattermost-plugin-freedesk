@@ -2,33 +2,78 @@ package main
 
 import (
 	"reflect"
+	"strings"
 
 	"github.com/pkg/errors"
+
+	"github.com/taku-devjp/mattermost-plugin-freedesk/server/utils"
 )
 
-// configuration captures the plugin's external configuration as exposed in the Mattermost server
-// configuration, as well as values computed from the configuration. Any public fields will be
-// deserialized from the Mattermost server configuration in OnConfigurationChange.
-//
-// As plugins are inherently concurrent (hooks being called asynchronously), and the plugin
-// configuration can change at any time, access to the configuration must be synchronized. The
-// strategy used in this plugin is to guard a pointer to the configuration, and clone the entire
-// struct whenever it changes. You may replace this with whatever strategy you choose.
-//
-// If you add non-reference types to your configuration struct, be sure to rewrite Clone as a deep
-// copy appropriate for your types.
-type configuration struct{}
+type configuration struct {
+	NotificationChannelID string  `json:"NotificationChannelID"`
+	EnableNotifications   *bool   `json:"EnableNotifications"`
+	MaxAdvanceDays        *int    `json:"MaxAdvanceDays"`
+	OneDeskPerDay         *bool   `json:"OneDeskPerDay"`
+	PluginAdminUserIDs    string  `json:"PluginAdminUserIDs"`
+}
 
-// Clone shallow copies the configuration. Your implementation may require a deep copy if
-// your configuration has reference types.
 func (c *configuration) Clone() *configuration {
 	clone := *c
 	return &clone
 }
 
-// getConfiguration retrieves the active configuration under lock, making it safe to use
-// concurrently. The active configuration may change underneath the client of this method, but
-// the struct returned by this API call is considered immutable.
+func (c *configuration) GetNotificationChannelID() string {
+	if c == nil {
+		return ""
+	}
+	return c.NotificationChannelID
+}
+
+func (c *configuration) GetEnableNotifications() bool {
+	if c == nil || c.EnableNotifications == nil {
+		return true
+	}
+	return *c.EnableNotifications
+}
+
+func (c *configuration) GetMaxAdvanceDays() int {
+	if c == nil || c.MaxAdvanceDays == nil || *c.MaxAdvanceDays <= 0 {
+		return utils.DefaultMaxDays
+	}
+	return *c.MaxAdvanceDays
+}
+
+func (c *configuration) GetOneDeskPerDay() bool {
+	if c == nil || c.OneDeskPerDay == nil {
+		return true
+	}
+	return *c.OneDeskPerDay
+}
+
+func (c *configuration) GetPluginAdminUserIDs() []string {
+	if c == nil || c.PluginAdminUserIDs == "" {
+		return nil
+	}
+	parts := strings.Split(c.PluginAdminUserIDs, ",")
+	ids := make([]string, 0, len(parts))
+	for _, p := range parts {
+		id := strings.TrimSpace(p)
+		if id != "" {
+			ids = append(ids, id)
+		}
+	}
+	return ids
+}
+
+func (c *configuration) IsPluginAdmin(userID string) bool {
+	for _, id := range c.GetPluginAdminUserIDs() {
+		if id == userID {
+			return true
+		}
+	}
+	return false
+}
+
 func (p *Plugin) getConfiguration() *configuration {
 	p.configurationLock.RLock()
 	defer p.configurationLock.RUnlock()
@@ -36,47 +81,43 @@ func (p *Plugin) getConfiguration() *configuration {
 	if p.configuration == nil {
 		return &configuration{}
 	}
-
 	return p.configuration
 }
 
-// setConfiguration replaces the active configuration under lock.
-//
-// Do not call setConfiguration while holding the configurationLock, as sync.Mutex is not
-// reentrant. In particular, avoid using the plugin API entirely, as this may in turn trigger a
-// hook back into the plugin. If that hook attempts to acquire this lock, a deadlock may occur.
-//
-// This method panics if setConfiguration is called with the existing configuration. This almost
-// certainly means that the configuration was modified without being cloned and may result in
-// an unsafe access.
 func (p *Plugin) setConfiguration(configuration *configuration) {
 	p.configurationLock.Lock()
 	defer p.configurationLock.Unlock()
 
 	if configuration != nil && p.configuration == configuration {
-		// Ignore assignment if the configuration struct is empty. Go will optimize the
-		// allocation for same to point at the same memory address, breaking the check
-		// above.
 		if reflect.ValueOf(*configuration).NumField() == 0 {
 			return
 		}
-
 		panic("setConfiguration called with the existing configuration")
 	}
 
 	p.configuration = configuration
 }
 
-// OnConfigurationChange is invoked when configuration changes may have been made.
 func (p *Plugin) OnConfigurationChange() error {
-	configuration := new(configuration)
+	prev := p.getConfiguration()
+	prevOneDesk := true
+	if prev != nil {
+		prevOneDesk = prev.GetOneDeskPerDay()
+	}
 
-	// Load the public configuration fields from the Mattermost server configuration.
+	configuration := new(configuration)
 	if err := p.API.LoadPluginConfiguration(configuration); err != nil {
 		return errors.Wrap(err, "failed to load plugin configuration")
 	}
 
 	p.setConfiguration(configuration)
+
+	if p.store != nil && prevOneDesk != configuration.GetOneDeskPerDay() {
+		if err := p.store.SyncOneDeskPerDayIndex(configuration.GetOneDeskPerDay()); err != nil {
+			p.API.LogError("Failed to sync OneDeskPerDay index", "error", err.Error())
+			return errors.Wrap(err, "failed to sync OneDeskPerDay index")
+		}
+	}
 
 	return nil
 }

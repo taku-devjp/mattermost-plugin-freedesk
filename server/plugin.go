@@ -1,89 +1,92 @@
 package main
 
 import (
-	"net/http"
 	"sync"
-	"time"
 
 	"github.com/gorilla/mux"
-	"github.com/mattermost/mattermost/server/public/model"
 	"github.com/mattermost/mattermost/server/public/plugin"
 	"github.com/mattermost/mattermost/server/public/pluginapi"
-	"github.com/mattermost/mattermost/server/public/pluginapi/cluster"
 	"github.com/pkg/errors"
 
-	"github.com/taku-devjp/mattermost-plugin-freedesk/server/command"
-	"github.com/taku-devjp/mattermost-plugin-freedesk/server/store/kvstore"
+	"github.com/taku-devjp/mattermost-plugin-freedesk/server/service"
+	"github.com/taku-devjp/mattermost-plugin-freedesk/server/store"
+	"github.com/taku-devjp/mattermost-plugin-freedesk/server/store/sqlstore"
 )
 
-// Plugin implements the interface expected by the Mattermost server to communicate between the server and plugin processes.
+// Plugin implements the interface expected by the Mattermost server.
 type Plugin struct {
 	plugin.MattermostPlugin
 
-	// kvstore is the client used to read/write KV records for this plugin.
-	kvstore kvstore.KVStore
-
-	// client is the Mattermost server API client.
 	client *pluginapi.Client
-
-	// commandClient is the client used to register and execute slash commands.
-	commandClient command.Command
-
-	// router is the HTTP router for handling API requests.
+	store  store.Store
+	service *service.Service
 	router *mux.Router
 
-	backgroundJob *cluster.Job
-
-	// configurationLock synchronizes access to the configuration.
 	configurationLock sync.RWMutex
-
-	// configuration is the active plugin configuration. Consult getConfiguration and
-	// setConfiguration for usage.
-	configuration *configuration
+	configuration   *configuration
 }
 
-// OnActivate is invoked when the plugin is activated. If an error is returned, the plugin will be deactivated.
+// OnActivate is invoked when the plugin is activated.
 func (p *Plugin) OnActivate() error {
 	p.client = pluginapi.NewClient(p.API, p.Driver)
 
-	p.kvstore = kvstore.NewKVStore(p.client)
-
-	p.commandClient = command.NewCommandHandler(p.client)
-
-	p.router = p.initRouter()
-
-	job, err := cluster.Schedule(
-		p.API,
-		"BackgroundJob",
-		cluster.MakeWaitForRoundedInterval(1*time.Hour),
-		p.runJob,
-	)
+	sqlStore, err := sqlstore.New(p.client)
 	if err != nil {
-		return errors.Wrap(err, "failed to schedule background job")
+		return errors.Wrap(err, "failed to create sql store")
+	}
+	p.store = sqlStore
+
+	if err := p.store.Migrate(); err != nil {
+		return errors.Wrap(err, "failed to run migrations")
 	}
 
-	p.backgroundJob = job
+	if err := p.store.SeedInitialData(); err != nil {
+		return errors.Wrap(err, "failed to seed initial data")
+	}
 
+	if err := p.OnConfigurationChange(); err != nil {
+		return errors.Wrap(err, "failed to load configuration")
+	}
+
+	if err := p.store.SyncOneDeskPerDayIndex(p.getConfiguration().GetOneDeskPerDay()); err != nil {
+		return errors.Wrap(err, "failed to sync OneDeskPerDay index on activate")
+	}
+
+	p.service = service.New(p.store, p.client, p)
+	p.router = p.initRouter()
+
+	p.API.LogInfo("Free Desk plugin activated")
 	return nil
+}
+
+// ConfigProvider methods — delegate to active configuration.
+
+func (p *Plugin) GetNotificationChannelID() string {
+	return p.getConfiguration().GetNotificationChannelID()
+}
+
+func (p *Plugin) GetEnableNotifications() bool {
+	return p.getConfiguration().GetEnableNotifications()
+}
+
+func (p *Plugin) GetMaxAdvanceDays() int {
+	return p.getConfiguration().GetMaxAdvanceDays()
+}
+
+func (p *Plugin) GetOneDeskPerDay() bool {
+	return p.getConfiguration().GetOneDeskPerDay()
+}
+
+func (p *Plugin) GetPluginAdminUserIDs() []string {
+	return p.getConfiguration().GetPluginAdminUserIDs()
+}
+
+func (p *Plugin) IsPluginAdmin(userID string) bool {
+	return p.getConfiguration().IsPluginAdmin(userID)
 }
 
 // OnDeactivate is invoked when the plugin is deactivated.
 func (p *Plugin) OnDeactivate() error {
-	if p.backgroundJob != nil {
-		if err := p.backgroundJob.Close(); err != nil {
-			p.API.LogError("Failed to close background job", "err", err)
-		}
-	}
+	p.API.LogInfo("Free Desk plugin deactivated")
 	return nil
 }
-
-// This will execute the commands that were registered in the NewCommandHandler function.
-func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*model.CommandResponse, *model.AppError) {
-	response, err := p.commandClient.Handle(args)
-	if err != nil {
-		return nil, model.NewAppError("ExecuteCommand", "plugin.command.execute_command.app_error", nil, err.Error(), http.StatusInternalServerError)
-	}
-	return response, nil
-}
-
-// See https://developers.mattermost.com/extend/plugins/server/reference/

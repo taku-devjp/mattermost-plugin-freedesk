@@ -19,8 +19,46 @@
         "bundle_path": "webapp/dist/main.js"
     },
     "settings_schema": {
-        "header": "",
+        "header": "フリーデスク予約プラグインの設定",
         "footer": "",
-        "settings": []
+        "settings": [
+            {
+                "key": "NotificationChannelID",
+                "display_name": "通知チャンネル ID",
+                "type": "text",
+                "help_text": "予約・取消の通知を投稿するチャンネル ID。空の場合は通知しません。",
+                "placeholder": "",
+                "default": ""
+            },
+            {
+                "key": "EnableNotifications",
+                "display_name": "チャンネル通知を有効にする",
+                "type": "bool",
+                "help_text": "予約・取消時に通知チャンネルへ投稿します。",
+                "default": true
+            },
+            {
+                "key": "MaxAdvanceDays",
+                "display_name": "予約可能日数",
+                "type": "number",
+                "help_text": "今日から何日先まで予約できるか（デフォルト: 60日 ≒ 約2か月）。",
+                "default": 60
+            },
+            {
+                "key": "OneDeskPerDay",
+                "display_name": "1日1デスク制限",
+                "type": "bool",
+                "help_text": "同一ユーザーが同日に複数デスクを予約できないようにします。",
+                "default": true
+            },
+            {
+                "key": "PluginAdminUserIDs",
+                "display_name": "プラグイン管理者ユーザー ID",
+                "type": "text",
+                "help_text": "管理タブ・デスク CRUD・代理取消が可能なユーザー ID（カンマ区切り）。",
+                "placeholder": "",
+                "default": ""
+            }
+        ]
     }
 }
