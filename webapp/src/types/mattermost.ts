@@ -1,6 +1,7 @@
-import type {FreeDeskState} from '../types';
-import {PLUGIN_STATE_KEY} from '../actions';
 import type {GlobalState as MMGlobalState} from '@mattermost/types/store';
+
+import {PLUGIN_STATE_KEY} from '../actions';
+import type {FreeDeskState} from '../types';
 
 export interface GlobalState extends MMGlobalState {
     [PLUGIN_STATE_KEY]?: FreeDeskState;

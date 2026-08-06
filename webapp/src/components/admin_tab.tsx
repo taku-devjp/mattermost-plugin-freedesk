@@ -1,12 +1,13 @@
 import React, {useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 
+import ConfirmDialog from './confirm_dialog';
+
 import {executeConfirm, hideConfirm, saveDesk, showConfirm} from '../actions';
+import {labels} from '../labels';
+import type {Desk} from '../types';
 import type {GlobalState} from '../types/mattermost';
 import {getPluginStateFromGlobal} from '../types/mattermost';
-import type {Desk} from '../types';
-
-import ConfirmDialog from './confirm_dialog';
 
 const AdminTab: React.FC = () => {
     const dispatch = useDispatch();
@@ -57,13 +58,13 @@ const AdminTab: React.FC = () => {
 
     return (
         <div className='freedesk-admin-tab'>
-            <h3 className='freedesk-admin-heading'>{editingId ? 'デスク編集' : 'デスク追加'}</h3>
+            <h3 className='freedesk-admin-heading'>{editingId ? labels.deskEdit : labels.deskAdd}</h3>
             <form
                 className='freedesk-admin-form'
                 onSubmit={handleSubmit}
             >
                 <label>
-                    名称
+                    {labels.name}
                     <input
                         type='text'
                         value={form.name}
@@ -73,7 +74,7 @@ const AdminTab: React.FC = () => {
                     />
                 </label>
                 <label>
-                    表示順
+                    {labels.sortOrder}
                     <input
                         type='number'
                         value={form.sort_order}
@@ -87,7 +88,7 @@ const AdminTab: React.FC = () => {
                         checked={form.is_active}
                         onChange={(e) => setForm({...form, is_active: e.target.checked})}
                     />
-                    有効
+                    {labels.active}
                 </label>
                 <div className='freedesk-admin-form-actions'>
                     <button
@@ -95,7 +96,7 @@ const AdminTab: React.FC = () => {
                         className='btn btn-primary btn-sm'
                         disabled={adminSaving}
                     >
-                        {editingId ? '更新' : '追加'}
+                        {editingId ? labels.update : labels.add}
                     </button>
                     {editingId && (
                         <button
@@ -103,7 +104,7 @@ const AdminTab: React.FC = () => {
                             className='btn btn-tertiary btn-sm'
                             onClick={resetForm}
                         >
-                            キャンセル
+                            {labels.cancel}
                         </button>
                     )}
                 </div>
@@ -112,10 +113,10 @@ const AdminTab: React.FC = () => {
             <table className='freedesk-admin-table'>
                 <thead>
                     <tr>
-                        <th>名称</th>
-                        <th>表示順</th>
-                        <th>状態</th>
-                        <th>操作</th>
+                        <th>{labels.name}</th>
+                        <th>{labels.sortOrder}</th>
+                        <th>{labels.status}</th>
+                        <th>{labels.actions}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -123,21 +124,21 @@ const AdminTab: React.FC = () => {
                         <tr key={desk.id}>
                             <td>{desk.name}</td>
                             <td>{desk.sort_order}</td>
-                            <td>{desk.is_active ? '有効' : '無効'}</td>
+                            <td>{desk.is_active ? labels.active : labels.inactive}</td>
                             <td>
                                 <button
                                     type='button'
                                     className='btn btn-tertiary btn-xs'
                                     onClick={() => startEdit(desk)}
                                 >
-                                    編集
+                                    {labels.edit}
                                 </button>
                                 <button
                                     type='button'
                                     className='btn btn-tertiary btn-xs'
                                     onClick={() => handleDelete(desk)}
                                 >
-                                    削除
+                                    {labels.delete}
                                 </button>
                             </td>
                         </tr>

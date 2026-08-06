@@ -1,12 +1,13 @@
 import React, {useEffect} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 
-import {closeModal, loadModalData, setTab} from '../actions';
-import type {GlobalState} from '../types/mattermost';
-import {getPluginStateFromGlobal} from '../types/mattermost';
-
 import AdminTab from './admin_tab';
 import ReservationTab from './reservation_tab';
+
+import {closeModal, loadModalData, setTab} from '../actions';
+import {labels} from '../labels';
+import type {GlobalState} from '../types/mattermost';
+import {getPluginStateFromGlobal} from '../types/mattermost';
 
 const FreeDeskModal: React.FC = () => {
     const dispatch = useDispatch();
@@ -35,17 +36,17 @@ const FreeDeskModal: React.FC = () => {
                 onClick={(e) => e.stopPropagation()}
                 role='dialog'
                 aria-modal='true'
-                aria-label='フリーデスク予約'
+                aria-label={labels.modalTitle}
             >
                 <div className='freedesk-modal-header'>
-                    <h2>フリーデスク予約</h2>
+                    <h2>{labels.modalTitle}</h2>
                     <button
                         type='button'
                         className='freedesk-modal-close'
                         onClick={() => dispatch(closeModal())}
-                        aria-label='閉じる'
+                        aria-label={labels.close}
                     >
-                        ×
+                        {labels.closeSymbol}
                     </button>
                 </div>
                 <div className='freedesk-modal-tabs'>
@@ -54,7 +55,7 @@ const FreeDeskModal: React.FC = () => {
                         className={`freedesk-tab ${activeTab === 'reservation' ? 'freedesk-tab--active' : ''}`}
                         onClick={() => dispatch(setTab('reservation'))}
                     >
-                        予約
+                        {labels.tabReservation}
                     </button>
                     {showAdminTab && (
                         <button
@@ -62,13 +63,13 @@ const FreeDeskModal: React.FC = () => {
                             className={`freedesk-tab ${activeTab === 'admin' ? 'freedesk-tab--active' : ''}`}
                             onClick={() => dispatch(setTab('admin'))}
                         >
-                            管理
+                            {labels.tabAdmin}
                         </button>
                     )}
                 </div>
                 <div className='freedesk-modal-body'>
                     {loading && !config ? (
-                        <div className='freedesk-loading'>読み込み中...</div>
+                        <div className='freedesk-loading'>{labels.loading}</div>
                     ) : (
                         <>
                             {activeTab === 'reservation' && <ReservationTab/>}

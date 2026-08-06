@@ -1,5 +1,6 @@
 import React from 'react';
 
+import {labels} from '../labels';
 import type {ConfirmDialogState} from '../types';
 
 interface Props {
@@ -36,11 +37,11 @@ const ConfirmDialog: React.FC<Props> = ({dialog, onConfirm, onCancel}) => {
                 role='dialog'
                 aria-modal='true'
             >
-                <h3 className='freedesk-confirm-title'>確認</h3>
+                <h3 className='freedesk-confirm-title'>{labels.confirm}</h3>
                 <div className='freedesk-confirm-body'>
-                    <p><strong>デスク:</strong> {dialog.deskName}</p>
-                    {dialog.date && <p><strong>日付:</strong> {dialog.date}</p>}
-                    {dialog.userName && <p><strong>予約者:</strong> {dialog.userName}</p>}
+                    <p><strong>{labels.deskLabel}</strong> {dialog.deskName}</p>
+                    {dialog.date && <p><strong>{labels.dateLabel}</strong> {dialog.date}</p>}
+                    {dialog.userName && <p><strong>{labels.reserverLabel}</strong> {dialog.userName}</p>}
                     <p>{getMessage(dialog)}</p>
                 </div>
                 <div className='freedesk-confirm-actions'>
@@ -49,14 +50,14 @@ const ConfirmDialog: React.FC<Props> = ({dialog, onConfirm, onCancel}) => {
                         className='btn btn-tertiary'
                         onClick={onCancel}
                     >
-                        キャンセル
+                        {labels.cancel}
                     </button>
                     <button
                         type='button'
                         className='btn btn-primary'
                         onClick={onConfirm}
                     >
-                        OK
+                        {labels.ok}
                     </button>
                 </div>
             </div>

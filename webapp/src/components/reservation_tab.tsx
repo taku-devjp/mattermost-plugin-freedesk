@@ -1,16 +1,17 @@
 import React from 'react';
 import {useSelector} from 'react-redux';
 
+import MatrixTable from './matrix_table';
+
+import {labels} from '../labels';
 import type {GlobalState} from '../types/mattermost';
 import {getPluginStateFromGlobal} from '../types/mattermost';
-
-import MatrixTable from './matrix_table';
 
 const ReservationTab: React.FC = () => {
     const {matrix, config, loading, error} = useSelector((state: GlobalState) => getPluginStateFromGlobal(state));
 
     if (loading && !matrix) {
-        return <div className='freedesk-loading'>読み込み中...</div>;
+        return <div className='freedesk-loading'>{labels.loading}</div>;
     }
 
     if (error) {
@@ -18,7 +19,7 @@ const ReservationTab: React.FC = () => {
     }
 
     if (!matrix || !config) {
-        return <div className='freedesk-error'>データがありません。</div>;
+        return <div className='freedesk-error'>{labels.noData}</div>;
     }
 
     return (
@@ -28,7 +29,7 @@ const ReservationTab: React.FC = () => {
                 matrix={matrix}
                 isPluginAdmin={config.is_plugin_admin}
             />
-            {loading && <div className='freedesk-loading-overlay'>更新中...</div>}
+            {loading && <div className='freedesk-loading-overlay'>{labels.updating}</div>}
         </div>
     );
 };

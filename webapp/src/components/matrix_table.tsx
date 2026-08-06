@@ -1,12 +1,13 @@
 import React, {useCallback} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 
+import ConfirmDialog from './confirm_dialog';
+
 import {executeConfirm, hideConfirm, loadMatrix, showConfirm} from '../actions';
+import {labels} from '../labels';
+import type {MatrixData, MatrixReservation} from '../types';
 import type {GlobalState} from '../types/mattermost';
 import {getPluginStateFromGlobal} from '../types/mattermost';
-import type {MatrixData, MatrixReservation} from '../types';
-
-import ConfirmDialog from './confirm_dialog';
 
 interface Props {
     matrix: MatrixData;
@@ -23,6 +24,33 @@ function formatDateLabel(date: string): string {
 
 function findReservation(reservations: MatrixReservation[], deskId: string, date: string): MatrixReservation | undefined {
     return reservations.find((r) => r.desk_id === deskId && r.reserve_date === date);
+}
+
+function getCellClassName(isPast: boolean, isMine: boolean, isOthers: boolean, isClickable: boolean): string {
+    let cellClass = 'freedesk-matrix-cell';
+    if (isPast) {
+        cellClass += ' freedesk-matrix-cell--past';
+    } else if (isMine) {
+        cellClass += ' freedesk-matrix-cell--mine';
+    } else if (isOthers) {
+        cellClass += ' freedesk-matrix-cell--occupied';
+    } else {
+        cellClass += ' freedesk-matrix-cell--empty';
+    }
+    if (isClickable) {
+        cellClass += ' freedesk-matrix-cell--clickable';
+    }
+    return cellClass;
+}
+
+function getCellContent(reservation: MatrixReservation | undefined, isPast: boolean): string {
+    if (reservation) {
+        return reservation.user_name;
+    }
+    if (isPast) {
+        return '';
+    }
+    return labels.emptySlot;
 }
 
 const MatrixTable: React.FC<Props> = ({matrix, isPluginAdmin}) => {
@@ -81,14 +109,19 @@ const MatrixTable: React.FC<Props> = ({matrix, isPluginAdmin}) => {
     return (
         <div className='freedesk-matrix-container'>
             <div className='freedesk-matrix-toolbar'>
-                <span className='freedesk-matrix-month'>{matrix.year}年{matrix.month}月</span>
+                <span className='freedesk-matrix-month'>
+                    {matrix.year}
+                    {labels.yearSuffix}
+                    {matrix.month}
+                    {labels.monthSuffix}
+                </span>
                 {matrix.can_go_next && (
                     <button
                         type='button'
                         className='btn btn-tertiary btn-sm'
                         onClick={handleNextMonth}
                     >
-                        翌月 →
+                        {labels.nextMonth}
                     </button>
                 )}
             </div>
@@ -96,7 +129,7 @@ const MatrixTable: React.FC<Props> = ({matrix, isPluginAdmin}) => {
                 <table className='freedesk-matrix'>
                     <thead>
                         <tr>
-                            <th className='freedesk-matrix-date-header'>日付</th>
+                            <th className='freedesk-matrix-date-header'>{labels.dateHeader}</th>
                             {matrix.desks.map((desk) => (
                                 <th
                                     key={desk.id}
@@ -119,29 +152,17 @@ const MatrixTable: React.FC<Props> = ({matrix, isPluginAdmin}) => {
                                     const isMine = Boolean(reservation?.is_mine);
                                     const isOthers = Boolean(reservation && !reservation.is_mine);
                                     const isClickable = isBookable || isMine || (isOthers && isPluginAdmin);
-
-                                    let cellClass = 'freedesk-matrix-cell';
-                                    if (isPast) {
-                                        cellClass += ' freedesk-matrix-cell--past';
-                                    } else if (isMine) {
-                                        cellClass += ' freedesk-matrix-cell--mine';
-                                    } else if (isOthers) {
-                                        cellClass += ' freedesk-matrix-cell--occupied';
-                                    } else {
-                                        cellClass += ' freedesk-matrix-cell--empty';
-                                    }
-                                    if (isClickable) {
-                                        cellClass += ' freedesk-matrix-cell--clickable';
-                                    }
+                                    const cellClass = getCellClassName(isPast, isMine, isOthers, isClickable);
+                                    const cellContent = getCellContent(reservation, isPast);
 
                                     return (
                                         <td
                                             key={`${date}-${desk.id}`}
                                             className={cellClass}
                                             onClick={isClickable ? () => handleCellClick(desk.id, desk.name, date) : undefined}
-                                            title={reservation?.user_name || (isBookable ? '空き' : '')}
+                                            title={reservation?.user_name || (isBookable ? labels.available : '')}
                                         >
-                                            {reservation ? reservation.user_name : (isPast ? '' : '—')}
+                                            {cellContent}
                                         </td>
                                     );
                                 })}
