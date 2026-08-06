@@ -1,4 +1,4 @@
-import React, {useCallback, useLayoutEffect, useRef} from 'react';
+import React, {useCallback, useLayoutEffect, useRef, useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 
 import ConfirmDialog from './confirm_dialog';
@@ -52,6 +52,7 @@ const MatrixTable: React.FC<Props> = ({matrix, isPluginAdmin}) => {
     const tableWrapRef = useRef<HTMLDivElement>(null);
     const headerRef = useRef<HTMLDivElement>(null);
     const scrollRef = useRef<HTMLDivElement>(null);
+    const [hoveredDeskId, setHoveredDeskId] = useState<string | null>(null);
 
     useLayoutEffect(() => {
         const scrollEl = scrollRef.current;
@@ -148,7 +149,7 @@ const MatrixTable: React.FC<Props> = ({matrix, isPluginAdmin}) => {
             {matrix.desks.map((desk) => (
                 <th
                     key={desk.id}
-                    className='freedesk-matrix-desk-header'
+                    className={`freedesk-matrix-desk-header${hoveredDeskId === desk.id ? ' freedesk-matrix-desk-header--highlighted' : ''}`}
                     title={desk.name}
                 >
                     {desk.name}
@@ -220,6 +221,8 @@ const MatrixTable: React.FC<Props> = ({matrix, isPluginAdmin}) => {
                                                 key={`${date}-${desk.id}`}
                                                 className={cellClass}
                                                 onClick={isClickable ? () => handleCellClick(desk.id, desk.name, date) : undefined}
+                                                onMouseEnter={isClickable ? () => setHoveredDeskId(desk.id) : undefined}
+                                                onMouseLeave={isClickable ? () => setHoveredDeskId(null) : undefined}
                                                 title={reservation?.user_name || (isBookable ? labels.available : '')}
                                             >
                                                 {cellContent}
