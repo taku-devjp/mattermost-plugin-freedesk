@@ -34,7 +34,7 @@ func (s *SQLStore) GetDesks(locationID string, includeInactive bool) ([]*freedes
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to query desks")
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	var desks []*freedeskmodel.Desk
 	for rows.Next() {

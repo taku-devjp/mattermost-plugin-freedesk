@@ -26,7 +26,7 @@ func (s *SQLStore) GetLocations() ([]*freedeskmodel.Location, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to query locations")
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	var locations []*freedeskmodel.Location
 	for rows.Next() {

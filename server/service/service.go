@@ -18,9 +18,10 @@ type ConfigProvider interface {
 
 // Service holds business logic dependencies.
 type Service struct {
-	store  store.Store
-	client *pluginapi.Client
-	config ConfigProvider
+	store     store.Store
+	client    *pluginapi.Client
+	config    ConfigProvider
+	botUserID string
 }
 
 // New creates a Service.

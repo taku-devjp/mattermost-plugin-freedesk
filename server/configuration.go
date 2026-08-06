@@ -2,6 +2,7 @@ package main
 
 import (
 	"reflect"
+	"slices"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -10,11 +11,11 @@ import (
 )
 
 type configuration struct {
-	NotificationChannelID string  `json:"NotificationChannelID"`
-	EnableNotifications   *bool   `json:"EnableNotifications"`
-	MaxAdvanceDays        *int    `json:"MaxAdvanceDays"`
-	OneDeskPerDay         *bool   `json:"OneDeskPerDay"`
-	PluginAdminUserIDs    string  `json:"PluginAdminUserIDs"`
+	NotificationChannelID string `json:"NotificationChannelID"`
+	EnableNotifications   *bool  `json:"EnableNotifications"`
+	MaxAdvanceDays        *int   `json:"MaxAdvanceDays"`
+	OneDeskPerDay         *bool  `json:"OneDeskPerDay"`
+	PluginAdminUserIDs    string `json:"PluginAdminUserIDs"`
 }
 
 func (c *configuration) Clone() *configuration {
@@ -66,12 +67,7 @@ func (c *configuration) GetPluginAdminUserIDs() []string {
 }
 
 func (c *configuration) IsPluginAdmin(userID string) bool {
-	for _, id := range c.GetPluginAdminUserIDs() {
-		if id == userID {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(c.GetPluginAdminUserIDs(), userID)
 }
 
 func (p *Plugin) getConfiguration() *configuration {

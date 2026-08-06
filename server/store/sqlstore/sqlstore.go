@@ -69,14 +69,8 @@ func (s *SQLStore) tableExists(tableName string) (bool, error) {
 	}
 
 	var count int
-	if s.isPostgres() {
-		if err := s.db.QueryRow(query, tableName).Scan(&count); err != nil {
-			return false, err
-		}
-	} else {
-		if err := s.db.QueryRow(query, tableName).Scan(&count); err != nil {
-			return false, err
-		}
+	if err := s.db.QueryRow(query, tableName).Scan(&count); err != nil {
+		return false, err
 	}
 	return count > 0, nil
 }
@@ -162,10 +156,6 @@ func (s *SQLStore) indexExists(indexName string) (bool, error) {
 	}
 
 	var count int
-	if s.isPostgres() {
-		err := s.db.QueryRow(query, indexName).Scan(&count)
-		return count > 0, err
-	}
 	err := s.db.QueryRow(query, indexName).Scan(&count)
 	return count > 0, err
 }

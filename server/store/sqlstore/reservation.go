@@ -73,7 +73,7 @@ func (s *SQLStore) GetReservationsByDateRange(locationID, startDate, endDate str
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to query reservations")
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	var reservations []*freedeskmodel.Reservation
 	for rows.Next() {
@@ -88,8 +88,9 @@ func (s *SQLStore) GetReservationsByDateRange(locationID, startDate, endDate str
 
 // GetReservationsByUser returns a user's active reservations from today onward.
 func (s *SQLStore) GetReservationsByUser(userID, today string, limit int) ([]*freedeskmodel.Reservation, error) {
-	if limit <= 0 {
-		limit = 50
+	limitUint := uint64(50)
+	if limit > 0 {
+		limitUint = uint64(limit) //nolint:gosec // limit is positive when used
 	}
 
 	query, args, err := s.builder.
@@ -98,7 +99,7 @@ func (s *SQLStore) GetReservationsByUser(userID, today string, limit int) ([]*fr
 		Join("freedesk_desks d ON d.id = r.desk_id").
 		Where("r.user_id = ? AND r.delete_at = 0 AND r.reserve_date >= ?", userID, today).
 		OrderBy("r.reserve_date ASC").
-		Limit(uint64(limit)).
+		Limit(limitUint).
 		ToSql()
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to build user reservations query")
@@ -108,7 +109,7 @@ func (s *SQLStore) GetReservationsByUser(userID, today string, limit int) ([]*fr
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to query user reservations")
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	var reservations []*freedeskmodel.Reservation
 	for rows.Next() {

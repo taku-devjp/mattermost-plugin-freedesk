@@ -4,6 +4,7 @@ import (
 	"sync"
 
 	"github.com/gorilla/mux"
+	"github.com/mattermost/mattermost/server/public/model"
 	"github.com/mattermost/mattermost/server/public/plugin"
 	"github.com/mattermost/mattermost/server/public/pluginapi"
 	"github.com/pkg/errors"
@@ -17,13 +18,13 @@ import (
 type Plugin struct {
 	plugin.MattermostPlugin
 
-	client *pluginapi.Client
-	store  store.Store
+	client  *pluginapi.Client
+	store   store.Store
 	service *service.Service
-	router *mux.Router
+	router  *mux.Router
 
 	configurationLock sync.RWMutex
-	configuration   *configuration
+	configuration     *configuration
 }
 
 // OnActivate is invoked when the plugin is activated.
@@ -36,23 +37,33 @@ func (p *Plugin) OnActivate() error {
 	}
 	p.store = sqlStore
 
-	if err := p.store.Migrate(); err != nil {
+	if err = p.store.Migrate(); err != nil {
 		return errors.Wrap(err, "failed to run migrations")
 	}
 
-	if err := p.store.SeedInitialData(); err != nil {
+	if err = p.store.SeedInitialData(); err != nil {
 		return errors.Wrap(err, "failed to seed initial data")
 	}
 
-	if err := p.OnConfigurationChange(); err != nil {
+	if err = p.OnConfigurationChange(); err != nil {
 		return errors.Wrap(err, "failed to load configuration")
 	}
 
-	if err := p.store.SyncOneDeskPerDayIndex(p.getConfiguration().GetOneDeskPerDay()); err != nil {
+	if err = p.store.SyncOneDeskPerDayIndex(p.getConfiguration().GetOneDeskPerDay()); err != nil {
 		return errors.Wrap(err, "failed to sync OneDeskPerDay index on activate")
 	}
 
+	botUserID, err := p.client.Bot.EnsureBot(&model.Bot{
+		Username:    "freedesk",
+		DisplayName: "Free Desk",
+		Description: "フリーデスク予約の通知ボット",
+	})
+	if err != nil {
+		return errors.Wrap(err, "failed to ensure bot user")
+	}
+
 	p.service = service.New(p.store, p.client, p)
+	p.service.SetBotUserID(botUserID)
 	p.router = p.initRouter()
 
 	p.API.LogInfo("Free Desk plugin activated")

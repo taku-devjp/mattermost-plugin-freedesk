@@ -1,0 +1,288 @@
+.freedesk-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+}
+
+.freedesk-modal {
+    background: var(--center-channel-bg, #fff);
+    color: var(--center-channel-color, #333);
+    border-radius: 8px;
+    width: min(90vw, 1200px);
+    min-width: 80vw;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+.freedesk-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid rgba(var(--center-channel-color-rgb, 51, 51, 51), 0.12);
+
+    h2 {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 600;
+    }
+}
+
+.freedesk-modal-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    line-height: 1;
+    cursor: pointer;
+    color: inherit;
+    padding: 0 4px;
+}
+
+.freedesk-modal-tabs {
+    display: flex;
+    gap: 4px;
+    padding: 8px 20px 0;
+    border-bottom: 1px solid rgba(var(--center-channel-color-rgb, 51, 51, 51), 0.12);
+}
+
+.freedesk-tab {
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    padding: 8px 16px;
+    cursor: pointer;
+    color: inherit;
+    font-size: 14px;
+
+    &--active {
+        border-bottom-color: var(--button-bg, #166de0);
+        font-weight: 600;
+    }
+}
+
+.freedesk-modal-body {
+    padding: 16px 20px 20px;
+    overflow: auto;
+    flex: 1;
+    position: relative;
+}
+
+.freedesk-loading,
+.freedesk-error {
+    padding: 24px;
+    text-align: center;
+}
+
+.freedesk-error {
+    color: var(--error-text, #d24b4e);
+}
+
+.freedesk-loading-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(var(--center-channel-bg-rgb, 255, 255, 255), 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.freedesk-matrix-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.freedesk-matrix-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.freedesk-matrix-month {
+    font-weight: 600;
+    font-size: 15px;
+}
+
+.freedesk-matrix-scroll {
+    overflow: auto;
+    max-height: calc(90vh - 200px);
+}
+
+.freedesk-matrix {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    table-layout: fixed;
+
+    th,
+    td {
+        border: 1px solid rgba(var(--center-channel-color-rgb, 51, 51, 51), 0.12);
+        padding: 6px 8px;
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    thead th {
+        position: sticky;
+        top: 0;
+        background: var(--center-channel-bg, #fff);
+        z-index: 1;
+        font-weight: 600;
+    }
+}
+
+.freedesk-matrix-date-header {
+    width: 72px;
+    min-width: 72px;
+}
+
+.freedesk-matrix-desk-header {
+    min-width: 100px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.freedesk-matrix-date {
+    font-weight: 500;
+    background: rgba(var(--center-channel-color-rgb, 51, 51, 51), 0.04);
+    white-space: nowrap;
+}
+
+.freedesk-matrix-cell {
+    min-height: 36px;
+
+    &--empty {
+        color: rgba(var(--center-channel-color-rgb, 51, 51, 51), 0.4);
+    }
+
+    &--mine {
+        background: rgba(var(--online-indicator-rgb, 6, 195, 70), 0.15);
+        font-weight: 600;
+    }
+
+    &--occupied {
+        background: rgba(var(--center-channel-color-rgb, 51, 51, 51), 0.06);
+        font-size: 12px;
+    }
+
+    &--past {
+        background: rgba(var(--center-channel-color-rgb, 51, 51, 51), 0.03);
+        color: rgba(var(--center-channel-color-rgb, 51, 51, 51), 0.5);
+    }
+
+    &--clickable {
+        cursor: pointer;
+
+        &:hover {
+            outline: 2px solid var(--button-bg, #166de0);
+            outline-offset: -2px;
+        }
+    }
+}
+
+.freedesk-confirm-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 3000;
+}
+
+.freedesk-confirm-dialog {
+    background: var(--center-channel-bg, #fff);
+    color: var(--center-channel-color, #333);
+    border-radius: 8px;
+    padding: 20px 24px;
+    min-width: 320px;
+    max-width: 480px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+.freedesk-confirm-title {
+    margin: 0 0 12px;
+    font-size: 16px;
+}
+
+.freedesk-confirm-body p {
+    margin: 4px 0;
+}
+
+.freedesk-confirm-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 16px;
+}
+
+.freedesk-admin-tab {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.freedesk-admin-heading {
+    margin: 0;
+    font-size: 15px;
+}
+
+.freedesk-admin-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: flex-end;
+
+    label {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        font-size: 13px;
+    }
+
+    input[type='text'],
+    input[type='number'] {
+        padding: 6px 8px;
+        border: 1px solid rgba(var(--center-channel-color-rgb, 51, 51, 51), 0.2);
+        border-radius: 4px;
+        background: var(--center-channel-bg, #fff);
+        color: inherit;
+        min-width: 160px;
+    }
+}
+
+.freedesk-admin-checkbox {
+    flex-direction: row !important;
+    align-items: center;
+    gap: 6px !important;
+}
+
+.freedesk-admin-form-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.freedesk-admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+
+    th,
+    td {
+        border: 1px solid rgba(var(--center-channel-color-rgb, 51, 51, 51), 0.12);
+        padding: 8px 10px;
+        text-align: left;
+    }
+
+    th {
+        background: rgba(var(--center-channel-color-rgb, 51, 51, 51), 0.04);
+        font-weight: 600;
+    }
+}
