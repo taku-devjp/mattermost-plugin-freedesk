@@ -2,6 +2,7 @@ import React from 'react';
 
 import {labels} from '../labels';
 import type {ConfirmDialogState} from '../types';
+import {formatDateFull} from '../utils/date';
 
 interface Props {
     dialog: ConfirmDialogState;
@@ -40,7 +41,7 @@ const ConfirmDialog: React.FC<Props> = ({dialog, onConfirm, onCancel}) => {
                 <h3 className='freedesk-confirm-title'>{labels.confirm}</h3>
                 <div className='freedesk-confirm-body'>
                     <p><strong>{labels.deskLabel}</strong> {dialog.deskName}</p>
-                    {dialog.date && <p><strong>{labels.dateLabel}</strong> {dialog.date}</p>}
+                    {dialog.date && <p><strong>{labels.dateLabel}</strong> {formatDateFull(dialog.date)}</p>}
                     {dialog.userName && <p><strong>{labels.reserverLabel}</strong> {dialog.userName}</p>}
                     <p>{getMessage(dialog)}</p>
                 </div>

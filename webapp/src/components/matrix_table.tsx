@@ -8,18 +8,11 @@ import {labels} from '../labels';
 import type {MatrixData, MatrixReservation} from '../types';
 import type {GlobalState} from '../types/mattermost';
 import {getPluginStateFromGlobal} from '../types/mattermost';
+import {formatDateLabel} from '../utils/date';
 
 interface Props {
     matrix: MatrixData;
     isPluginAdmin: boolean;
-}
-
-function formatDateLabel(date: string): string {
-    const parts = date.split('-');
-    if (parts.length !== 3) {
-        return date;
-    }
-    return `${parts[1]}/${parts[2]}`;
 }
 
 function findReservation(reservations: MatrixReservation[], deskId: string, date: string): MatrixReservation | undefined {
@@ -109,21 +102,24 @@ const MatrixTable: React.FC<Props> = ({matrix, isPluginAdmin}) => {
     return (
         <div className='freedesk-matrix-container'>
             <div className='freedesk-matrix-toolbar'>
+                <div className='freedesk-matrix-toolbar-spacer'/>
                 <span className='freedesk-matrix-month'>
                     {matrix.year}
                     {labels.yearSuffix}
                     {matrix.month}
                     {labels.monthSuffix}
                 </span>
-                {matrix.can_go_next && (
-                    <button
-                        type='button'
-                        className='btn btn-tertiary btn-sm'
-                        onClick={handleNextMonth}
-                    >
-                        {labels.nextMonth}
-                    </button>
-                )}
+                <div className='freedesk-matrix-toolbar-action'>
+                    {matrix.can_go_next && (
+                        <button
+                            type='button'
+                            className='btn btn-tertiary btn-sm'
+                            onClick={handleNextMonth}
+                        >
+                            {labels.nextMonth}
+                        </button>
+                    )}
+                </div>
             </div>
             <div className='freedesk-matrix-scroll'>
                 <table className='freedesk-matrix'>
