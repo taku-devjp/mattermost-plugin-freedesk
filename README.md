@@ -1,223 +1,120 @@
-# Plugin Starter Template
+# Mattermost Free Desk Plugin
 
-[![Build Status](https://github.com/mattermost/mattermost-plugin-starter-template/actions/workflows/ci.yml/badge.svg)](https://github.com/mattermost/mattermost-plugin-starter-template/actions/workflows/ci.yml)
-[![E2E Status](https://github.com/mattermost/mattermost-plugin-starter-template/actions/workflows/e2e.yml/badge.svg)](https://github.com/mattermost/mattermost-plugin-starter-template/actions/workflows/e2e.yml)
+[![CI](https://github.com/taku-devjp/mattermost-plugin-freedesk/actions/workflows/ci.yml/badge.svg)](https://github.com/taku-devjp/mattermost-plugin-freedesk/actions/workflows/ci.yml)
 
-This plugin serves as a starting point for writing a Mattermost plugin. Feel free to base your own plugin off this repository.
+Mattermost 上でフリーデスク（ホットデスク）の予約・確認・取消を行うプラグイン。Excel による手動運用を置き換える。
 
-To learn more about plugins, see [our plugin documentation](https://developers.mattermost.com/extend/plugins/).
+| 項目 | 値 |
+|------|-----|
+| プラグイン ID | `com.freedesk.mattermost` |
+| 対象 Mattermost | v9.0 以上 |
+| 現フェーズ | v0.1.0（MVP）設計完了 → 実装中 |
 
-This template requires node v16 and npm v8. You can download and install nvm to manage your node versions by following the instructions [here](https://github.com/nvm-sh/nvm). Once you've setup the project simply run `nvm i` within the root folder to use the suggested version of node.
+## 機能概要（v0.1.0）
 
-## Getting Started
-Use GitHub's template feature to make a copy of this repository by clicking the "Use this template" button.
+- **App Bar** から **モーダル** を開き、日付 × デスク（7 席）のマトリクスで予約状況を確認
+- 空きセルの予約・自分の予約の取消（確認ダイアログ必須）
+- プラグイン管理者向け **管理タブ**（デスク CRUD、代理取消）
+- 予約・取消時の **チャンネル通知**（設定可能）
+- タイムゾーン **Asia/Tokyo** 固定、表示は **1 か月単位**（翌月ページングのみ）
 
-Alternatively shallow clone the repository matching your plugin name:
-```
-git clone --depth 1 https://github.com/mattermost/mattermost-plugin-starter-template com.example.my-plugin
-```
+詳細は [docs/requirements.md](./docs/requirements.md) を参照。
 
-Note that this project uses [Go modules](https://github.com/golang/go/wiki/Modules). Be sure to locate the project outside of `$GOPATH`.
+## 設計ドキュメント
 
-Edit the following files:
-1. `plugin.json` with your `id`, `name`, and `description`:
+[docs/README.md](./docs/README.md) に一覧と読む順序があります。
+
+| ドキュメント | 内容 |
+|--------------|------|
+| [要件定義書](./docs/requirements.md) | 機能要件・非機能要件 |
+| [DB 設計書](./docs/database-design.md) | スキーマ・DDL |
+| [API 設計書](./docs/api-design.md) | REST API・Web App 連携 |
+
+---
+
+## プラグインの利用（管理者・エンドユーザー）
+
+開発環境を持たない場合は、ビルド済みバンドルを Mattermost にアップロードする。
+
+1. **System Console** → **プラグイン** → **プラグイン管理**
+2. `dist/com.freedesk.mattermost.tar.gz` をアップロード（または GitHub Releases の成果物）
+3. プラグインを **有効化**
+4. 設定（通知先チャンネル ID、プラグイン管理者ユーザー ID 等）を入力
+
+---
+
+## 開発
+
+### 前提条件
+
+- **Go**（`go.mod` 準拠）
+- **Node.js** — リポジトリルートで `nvm use`（[`.nvmrc`](./.nvmrc) 参照）
+- **make**
+
+### Mattermost 側の準備
+
+`config.json` でプラグインアップロードを有効化し、サーバーを再起動する。
+
 ```json
-{
-    "id": "com.example.my-plugin",
-    "name": "My Plugin",
-    "description": "A plugin to enhance Mattermost."
+"PluginSettings": {
+    "EnableUploads": true
 }
 ```
 
-2. `go.mod` with your Go module path, following the `<hosting-site>/<repository>/<module>` convention:
-```
-module github.com/example/my-plugin
-```
+### 環境変数
 
-3. Replace all occurrences of `github.com/mattermost/mattermost-plugin-starter-template` in the codebase with your Go module path:
+`.env.example` をコピーして `.env` を作成するか、シェルで export する。
+
+| 変数 | 説明 |
+|------|------|
+| `MM_SERVICESETTINGS_SITEURL` | Mattermost の URL（必須） |
+| `MM_ADMIN_TOKEN` | 管理者 Personal Access Token（推奨） |
+| `MM_ADMIN_USERNAME` / `MM_ADMIN_PASSWORD` | トークンの代わりにログイン認証も可 |
+
+ローカル Mattermost で **local mode** が有効な場合、上記なしで `make deploy` も可能（Unix ソケット経由）。
+
+### コマンド
+
+| コマンド | 用途 |
+|----------|------|
+| `make` | ビルド（`dist/com.freedesk.mattermost.tar.gz` を生成） |
+| `make test` | テスト実行（PR 前） |
+| `make deploy` | ビルド → アップロード → **有効化**（開発サーバー向け） |
+| `make watch` | Web App の変更を監視して再ビルド（別ターミナル） |
+| `make deploy-from-watch` | watch 中の Web App 変更をサーバーへ反映 |
+| `make reset` | プラグイン無効化 → 再有効化（挙動がおかしいとき） |
+| `make clean` | ビルド成果物の削除 |
+
+**初回デプロイ**
+
 ```bash
-sed -i '' 's|github.com/mattermost/mattermost-plugin-starter-template|github.com/example/my-plugin|g' server/*.go
-```
-
-4. Replace `.golangci.yml` `local-prefixes` attribute with your Go module path:
-```yml
-linters-settings:
-  # [...]
-  goimports:
-    local-prefixes: github.com/example/my-plugin
-```
-
-5. Build your plugin:
-```
-make
-```
-
-This will produce a single plugin file (with support for multiple architectures) for upload to your Mattermost server:
-
-```
-dist/com.example.my-plugin.tar.gz
-```
-
-## Development
-
-To avoid having to manually install your plugin, build and deploy your plugin using one of the following options. In order for the below options to work, you must first enable plugin uploads via your config.json or API and restart Mattermost.
-
-```json
-    "PluginSettings" : {
-        ...
-        "EnableUploads" : true
-    }
-```
-
-### Development guidance
-
-1. Fewer packages is better: default to the main package unless there's good reason for a new package.
-
-2. Coupling implies same package: don't jump through hoops to break apart code that's naturally coupled.
-
-3. New package for a new interface: a classic example is the sqlstore with layers for monitoring performance, caching and mocking.
-
-4. New package for upstream integration: a discrete client package for interfacing with a 3rd party is often a great place to break out into a new package
-
-### Modifying the server boilerplate
-
-The server code comes with some boilerplate for creating an api, using slash commands, accessing the kvstore and using the cluster package for jobs.
-
-#### Api
-
-api.go implements the ServeHTTP hook which allows the plugin to implement the http.Handler interface. Requests destined for the `/plugins/{id}` path will be routed to the plugin. This file also contains a sample `HelloWorld` endpoint that is tested in plugin_test.go.
-
-#### Command package
-
-This package contains the boilerplate for adding a slash command and an instance of it is created in the `OnActivate` hook in plugin.go. If you don't need it you can delete the package and remove any reference to `commandClient` in plugin.go. The package also contains an example of how to create a mock for testing.
-
-#### KVStore package
-
-This is a central place for you to access the KVStore methods that are available in the `pluginapi.Client`. The package contains an interface for you to define your methods that will wrap the KVStore methods. An instance of the KVStore is created in the `OnActivate` hook.
-
-### Deploying with Local Mode
-
-If your Mattermost server is running locally, you can enable [local mode](https://docs.mattermost.com/administration/mmctl-cli-tool.html#local-mode) to streamline deploying your plugin. Edit your server configuration as follows:
-
-```json
-{
-    "ServiceSettings": {
-        ...
-        "EnableLocalMode": true,
-        "LocalModeSocketLocation": "/var/tmp/mattermost_local.socket"
-    },
-}
-```
-
-and then deploy your plugin:
-```
+cp .env.example .env   # 必要に応じて編集
 make deploy
 ```
 
-You may also customize the Unix socket path:
-```bash
-export MM_LOCALSOCKETPATH=/var/tmp/alternate_local.socket
-make deploy
-```
+**Web App を編集しながら開発（2 ターミナル）**
 
-If developing a plugin with a webapp, watch for changes and deploy those automatically:
 ```bash
-export MM_SERVICESETTINGS_SITEURL=http://localhost:8065
-export MM_ADMIN_TOKEN=j44acwd8obn78cdcx7koid4jkr
+# ターミナル 1
 make watch
+
+# ターミナル 2 — webapp 再ビルド後に実行
+make deploy-from-watch
 ```
 
-### Deploying with credentials
+Go（server）を変更した場合は `make deploy` を再実行する。
 
-Alternatively, you can authenticate with the server's API with credentials:
-```bash
-export MM_SERVICESETTINGS_SITEURL=http://localhost:8065
-export MM_ADMIN_USERNAME=admin
-export MM_ADMIN_PASSWORD=password
-make deploy
+---
+
+## リポジトリ構成
+
+```
+server/     Go プラグイン（API、DB、ビジネスロジック）
+webapp/     React / TypeScript（モーダル UI）
+docs/       要件定義・設計書
+plugin.json プラグインマニフェスト
 ```
 
-or with a [personal access token](https://docs.mattermost.com/developer/personal-access-tokens.html):
-```bash
-export MM_SERVICESETTINGS_SITEURL=http://localhost:8065
-export MM_ADMIN_TOKEN=j44acwd8obn78cdcx7koid4jkr
-make deploy
-```
+## ライセンス
 
-### Releasing new versions
-
-The version of a plugin is determined at compile time, automatically populating a `version` field in the [plugin manifest](plugin.json):
-* If the current commit matches a tag, the version will match after stripping any leading `v`, e.g. `1.3.1`.
-* Otherwise, the version will combine the nearest tag with `git rev-parse --short HEAD`, e.g. `1.3.1+d06e53e1`.
-* If there is no version tag, an empty version will be combined with the short hash, e.g. `0.0.0+76081421`.
-
-To disable this behaviour, manually populate and maintain the `version` field.
-
-## How to Release
-
-To trigger a release, follow these steps:
-
-1. **For Patch Release:** Run the following command:
-    ```
-    make patch
-    ```
-   This will release a patch change.
-
-2. **For Minor Release:** Run the following command:
-    ```
-    make minor
-    ```
-   This will release a minor change.
-
-3. **For Major Release:** Run the following command:
-    ```
-    make major
-    ```
-   This will release a major change.
-
-4. **For Patch Release Candidate (RC):** Run the following command:
-    ```
-    make patch-rc
-    ```
-   This will release a patch release candidate.
-
-5. **For Minor Release Candidate (RC):** Run the following command:
-    ```
-    make minor-rc
-    ```
-   This will release a minor release candidate.
-
-6. **For Major Release Candidate (RC):** Run the following command:
-    ```
-    make major-rc
-    ```
-   This will release a major release candidate.
-
-## Q&A
-
-### How do I make a server-only or web app-only plugin?
-
-Simply delete the `server` or `webapp` folders and remove the corresponding sections from `plugin.json`. The build scripts will skip the missing portions automatically.
-
-### How do I include assets in the plugin bundle?
-
-Place them into the `assets` directory. To use an asset at runtime, build the path to your asset and open as a regular file:
-
-```go
-bundlePath, err := p.API.GetBundlePath()
-if err != nil {
-    return errors.Wrap(err, "failed to get bundle path")
-}
-
-profileImage, err := ioutil.ReadFile(filepath.Join(bundlePath, "assets", "profile_image.png"))
-if err != nil {
-    return errors.Wrap(err, "failed to read profile image")
-}
-
-if appErr := p.API.SetProfileImage(userID, profileImage); appErr != nil {
-    return errors.Wrap(err, "failed to set profile image")
-}
-```
-
-### How do I build the plugin with unminified JavaScript?
-Setting the `MM_DEBUG` environment variable will invoke the debug builds. The simplist way to do this is to simply include this variable in your calls to `make` (e.g. `make dist MM_DEBUG=1`).
+[mattermost-plugin-starter-template](https://github.com/mattermost/mattermost-plugin-starter-template) をベースに開発。
