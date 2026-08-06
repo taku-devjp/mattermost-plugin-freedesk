@@ -1,5 +1,5 @@
 {
-    "id": "com.github.taku-devjp.freedesk",
+    "id": "com.freedesk.mattermost",
     "name": "Free Desk",
     "description": "Mattermost plugin for free desk (hot desk) reservations.",
     "homepage_url": "https://github.com/taku-devjp/mattermost-plugin-freedesk",

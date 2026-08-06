@@ -1,7 +1,7 @@
 # 設計ドキュメント
 
 Mattermost フリーデスク予約プラグイン（`mattermost-plugin-freedesk`）の設計資料。  
-プラグイン ID: `com.github.taku-devjp.freedesk` / 対象バージョン: **v0.1.0（MVP）** / ステータス: **確定**
+プラグイン ID: `com.freedesk.mattermost` / 対象バージョン: **v0.1.0（MVP）** / ステータス: **確定**
 
 ## 読む順序
 

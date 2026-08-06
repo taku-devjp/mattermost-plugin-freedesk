@@ -6,7 +6,7 @@
 |------|------|
 | プロジェクト名 | Mattermost Free Desk Reservation Plugin |
 | 推奨リポジトリ名 | `mattermost-plugin-freedesk` |
-| プラグイン ID | `com.github.taku-devjp.freedesk` |
+| プラグイン ID | `com.freedesk.mattermost` |
 | バージョン | 0.1.0 |
 | 作成日 | 2026-08-06 |
 | ステータス | 確定 |
@@ -39,7 +39,7 @@
 例:
 
 ```
-https://mattermost.example.com/plugins/com.github.taku-devjp.freedesk/api/v1
+https://mattermost.example.com/plugins/com.freedesk.mattermost/api/v1
 ```
 
 ### 1.3 認証・認可

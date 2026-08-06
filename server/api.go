@@ -22,7 +22,7 @@ func (p *Plugin) initRouter() *mux.Router {
 }
 
 // ServeHTTP demonstrates a plugin that handles HTTP requests by greeting the world.
-// The root URL is <siteUrl>/plugins/com.github.taku-devjp.freedesk/api/v1/.
+// The root URL is <siteUrl>/plugins/com.freedesk.mattermost/api/v1/.
 func (p *Plugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r *http.Request) {
 	p.router.ServeHTTP(w, r)
 }
