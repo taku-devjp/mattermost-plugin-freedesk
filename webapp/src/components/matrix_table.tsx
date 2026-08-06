@@ -1,4 +1,4 @@
-import React, {useCallback} from 'react';
+import React, {useCallback, useLayoutEffect, useRef} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 
 import ConfirmDialog from './confirm_dialog';
@@ -49,6 +49,37 @@ function getCellContent(reservation: MatrixReservation | undefined, isPast: bool
 const MatrixTable: React.FC<Props> = ({matrix, isPluginAdmin}) => {
     const dispatch = useDispatch();
     const confirmDialog = useSelector((state: GlobalState) => getPluginStateFromGlobal(state).confirmDialog);
+    const tableWrapRef = useRef<HTMLDivElement>(null);
+    const headerRef = useRef<HTMLDivElement>(null);
+    const scrollRef = useRef<HTMLDivElement>(null);
+
+    useLayoutEffect(() => {
+        const scrollEl = scrollRef.current;
+        const wrapEl = tableWrapRef.current;
+        if (!scrollEl || !wrapEl) {
+            return undefined;
+        }
+
+        const updateScrollbarGutter = () => {
+            const scrollbarWidth = scrollEl.offsetWidth - scrollEl.clientWidth;
+            wrapEl.style.setProperty('--freedesk-scrollbar-width', `${scrollbarWidth}px`);
+        };
+
+        updateScrollbarGutter();
+
+        const observer = new ResizeObserver(updateScrollbarGutter);
+        observer.observe(scrollEl);
+
+        return () => observer.disconnect();
+    }, [matrix.dates.length, matrix.desks.length]);
+
+    const handleBodyScroll = useCallback(() => {
+        const scrollEl = scrollRef.current;
+        const headerEl = headerRef.current;
+        if (scrollEl && headerEl) {
+            headerEl.scrollLeft = scrollEl.scrollLeft;
+        }
+    }, []);
 
     const handleCellClick = useCallback((deskId: string, deskName: string, date: string) => {
         if (date < matrix.today) {
@@ -99,6 +130,33 @@ const MatrixTable: React.FC<Props> = ({matrix, isPluginAdmin}) => {
         loadMatrix(dispatch, nextYear, nextMonth);
     }, [dispatch, matrix.month, matrix.year]);
 
+    const renderColgroup = () => (
+        <colgroup>
+            <col className='freedesk-matrix-date-col'/>
+            {matrix.desks.map((desk) => (
+                <col
+                    key={desk.id}
+                    className='freedesk-matrix-desk-col'
+                />
+            ))}
+        </colgroup>
+    );
+
+    const renderHeaderRow = () => (
+        <tr>
+            <th className='freedesk-matrix-date-header'>{labels.dateHeader}</th>
+            {matrix.desks.map((desk) => (
+                <th
+                    key={desk.id}
+                    className='freedesk-matrix-desk-header'
+                    title={desk.name}
+                >
+                    {desk.name}
+                </th>
+            ))}
+        </tr>
+    );
+
     return (
         <div className='freedesk-matrix-container'>
             <div className='freedesk-matrix-toolbar'>
@@ -121,51 +179,58 @@ const MatrixTable: React.FC<Props> = ({matrix, isPluginAdmin}) => {
                     )}
                 </div>
             </div>
-            <div className='freedesk-matrix-scroll'>
-                <table className='freedesk-matrix'>
-                    <thead>
-                        <tr>
-                            <th className='freedesk-matrix-date-header'>{labels.dateHeader}</th>
-                            {matrix.desks.map((desk) => (
-                                <th
-                                    key={desk.id}
-                                    className='freedesk-matrix-desk-header'
-                                    title={desk.name}
-                                >
-                                    {desk.name}
-                                </th>
-                            ))}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {matrix.dates.map((date) => (
-                            <tr key={date}>
-                                <td className='freedesk-matrix-date'>{formatDateLabel(date)}</td>
-                                {matrix.desks.map((desk) => {
-                                    const reservation = findReservation(matrix.reservations, desk.id, date);
-                                    const isPast = date < matrix.today;
-                                    const isBookable = !isPast && !reservation;
-                                    const isMine = Boolean(reservation?.is_mine);
-                                    const isOthers = Boolean(reservation && !reservation.is_mine);
-                                    const isClickable = isBookable || isMine || (isOthers && isPluginAdmin);
-                                    const cellClass = getCellClassName(isPast, isMine, isOthers, isClickable);
-                                    const cellContent = getCellContent(reservation, isPast);
+            <div
+                className='freedesk-matrix-table-wrap'
+                ref={tableWrapRef}
+            >
+                <div
+                    className='freedesk-matrix-header'
+                    ref={headerRef}
+                >
+                    <table className='freedesk-matrix freedesk-matrix--header'>
+                        {renderColgroup()}
+                        <thead>
+                            {renderHeaderRow()}
+                        </thead>
+                    </table>
+                </div>
+                <div
+                    className='freedesk-matrix-scroll'
+                    ref={scrollRef}
+                    onScroll={handleBodyScroll}
+                >
+                    <table className='freedesk-matrix freedesk-matrix--body'>
+                        {renderColgroup()}
+                        <tbody>
+                            {matrix.dates.map((date) => (
+                                <tr key={date}>
+                                    <td className='freedesk-matrix-date'>{formatDateLabel(date)}</td>
+                                    {matrix.desks.map((desk) => {
+                                        const reservation = findReservation(matrix.reservations, desk.id, date);
+                                        const isPast = date < matrix.today;
+                                        const isBookable = !isPast && !reservation;
+                                        const isMine = Boolean(reservation?.is_mine);
+                                        const isOthers = Boolean(reservation && !reservation.is_mine);
+                                        const isClickable = isBookable || isMine || (isOthers && isPluginAdmin);
+                                        const cellClass = getCellClassName(isPast, isMine, isOthers, isClickable);
+                                        const cellContent = getCellContent(reservation, isPast);
 
-                                    return (
-                                        <td
-                                            key={`${date}-${desk.id}`}
-                                            className={cellClass}
-                                            onClick={isClickable ? () => handleCellClick(desk.id, desk.name, date) : undefined}
-                                            title={reservation?.user_name || (isBookable ? labels.available : '')}
-                                        >
-                                            {cellContent}
-                                        </td>
-                                    );
-                                })}
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
+                                        return (
+                                            <td
+                                                key={`${date}-${desk.id}`}
+                                                className={cellClass}
+                                                onClick={isClickable ? () => handleCellClick(desk.id, desk.name, date) : undefined}
+                                                title={reservation?.user_name || (isBookable ? labels.available : '')}
+                                            >
+                                                {cellContent}
+                                            </td>
+                                        );
+                                    })}
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             </div>
             {confirmDialog && (
                 <ConfirmDialog

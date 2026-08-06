@@ -133,11 +133,24 @@
     justify-self: end;
 }
 
+.freedesk-matrix-table-wrap {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+}
+
+.freedesk-matrix-header {
+    flex-shrink: 0;
+    overflow: hidden;
+    padding-right: var(--freedesk-scrollbar-width, 0);
+    box-sizing: border-box;
+}
+
 .freedesk-matrix-scroll {
     flex: 1;
     min-height: 0;
     overflow: auto;
-    isolation: isolate;
 }
 
 .freedesk-matrix {
@@ -148,32 +161,18 @@
 
     th,
     td {
-        border: 1px solid rgba(var(--center-channel-color-rgb, 51, 51, 51), 0.12);
+        border: 2px solid rgba(var(--center-channel-color-rgb, 51, 51, 51), 0.16);
         padding: 6px 8px;
         text-align: center;
         vertical-align: middle;
     }
 
     thead th {
-        position: sticky;
-        top: 0;
-        z-index: 2;
         background-color: rgb(var(--center-channel-bg-rgb, 255, 255, 255));
-        box-shadow: 0 1px 0 rgba(var(--center-channel-color-rgb, 51, 51, 51), 0.12);
         font-weight: 600;
         padding-top: 14px;
         padding-bottom: 14px;
         min-height: 48px;
-
-        &::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            right: 0;
-            top: -2px;
-            height: 2px;
-            background-color: rgb(var(--center-channel-bg-rgb, 255, 255, 255));
-        }
     }
 
     tbody tr:has(.freedesk-matrix-cell--clickable:hover) .freedesk-matrix-date {
@@ -182,6 +181,16 @@
         outline: 2px solid var(--button-bg, #166de0);
         outline-offset: -2px;
     }
+}
+
+.freedesk-matrix--header {
+    th {
+        border-bottom: none;
+    }
+}
+
+.freedesk-matrix-date-col {
+    width: 96px;
 }
 
 .freedesk-matrix-date-header {
