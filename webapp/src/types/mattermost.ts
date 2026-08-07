@@ -16,7 +16,6 @@ export function getPluginStateFromGlobal(state: GlobalState): FreeDeskState {
         desks: [],
         locations: [],
         loading: false,
-        error: null,
         year: 0,
         month: 0,
         confirmDialog: null,

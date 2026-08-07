@@ -8,18 +8,14 @@ import type {GlobalState} from '../types/mattermost';
 import {getPluginStateFromGlobal} from '../types/mattermost';
 
 const ReservationTab: React.FC = () => {
-    const {matrix, config, loading, error} = useSelector((state: GlobalState) => getPluginStateFromGlobal(state));
+    const {matrix, config, loading} = useSelector((state: GlobalState) => getPluginStateFromGlobal(state));
 
     if (loading && !matrix) {
         return <div className='freedesk-loading'>{labels.loading}</div>;
     }
 
-    if (error) {
-        return <div className='freedesk-error'>{error}</div>;
-    }
-
     if (!matrix || !config) {
-        return <div className='freedesk-error'>{labels.noData}</div>;
+        return null;
     }
 
     return (

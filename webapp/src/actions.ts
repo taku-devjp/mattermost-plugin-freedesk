@@ -16,7 +16,6 @@ export function getPluginState(state: { [key: string]: unknown }): FreeDeskState
         desks: [],
         locations: [],
         loading: false,
-        error: null,
         year: 0,
         month: 0,
         confirmDialog: null,
@@ -55,7 +54,7 @@ export function hideError() {
 
 export async function loadModalData(dispatch: Dispatch) {
     dispatch({type: ActionTypes.SET_LOADING, loading: true});
-    dispatch({type: ActionTypes.SET_ERROR, error: null});
+    dispatch({type: ActionTypes.HIDE_ERROR});
     try {
         const config = await client.getConfig();
         dispatch({type: ActionTypes.SET_CONFIG, config});
@@ -73,7 +72,7 @@ export async function loadModalData(dispatch: Dispatch) {
         }
     } catch (err) {
         const message = err instanceof client.APIError ? err.message : 'データの取得に失敗しました。';
-        dispatch({type: ActionTypes.SET_ERROR, error: message});
+        dispatch({type: ActionTypes.SHOW_ERROR, message});
     } finally {
         dispatch({type: ActionTypes.SET_LOADING, loading: false});
     }
@@ -81,13 +80,13 @@ export async function loadModalData(dispatch: Dispatch) {
 
 export async function loadMatrix(dispatch: Dispatch, year: number, month: number) {
     dispatch({type: ActionTypes.SET_LOADING, loading: true});
-    dispatch({type: ActionTypes.SET_ERROR, error: null});
+    dispatch({type: ActionTypes.HIDE_ERROR});
     try {
         const matrix = await client.getMatrix(year, month);
         dispatch({type: ActionTypes.SET_MATRIX, matrix});
     } catch (err) {
         const message = err instanceof client.APIError ? err.message : 'マトリクスの取得に失敗しました。';
-        dispatch({type: ActionTypes.SET_ERROR, error: message});
+        dispatch({type: ActionTypes.SHOW_ERROR, message});
     } finally {
         dispatch({type: ActionTypes.SET_LOADING, loading: false});
     }
@@ -99,7 +98,7 @@ export async function reloadAdminDesks(dispatch: Dispatch) {
         dispatch({type: ActionTypes.SET_DESKS, desks});
     } catch (err) {
         const message = err instanceof client.APIError ? err.message : 'デスク一覧の取得に失敗しました。';
-        dispatch({type: ActionTypes.SET_ERROR, error: message});
+        dispatch({type: ActionTypes.SHOW_ERROR, message});
     }
 }
 

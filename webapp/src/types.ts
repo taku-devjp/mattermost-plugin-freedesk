@@ -81,7 +81,6 @@ export interface FreeDeskState {
     desks: Desk[];
     locations: Location[];
     loading: boolean;
-    error: string | null;
     year: number;
     month: number;
     confirmDialog: ConfirmDialogState | null;

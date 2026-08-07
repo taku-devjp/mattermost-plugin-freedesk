@@ -5,7 +5,6 @@ export const ActionTypes = {
     CLOSE_MODAL: 'CLOSE_MODAL',
     SET_TAB: 'SET_TAB',
     SET_LOADING: 'SET_LOADING',
-    SET_ERROR: 'SET_ERROR',
     SET_CONFIG: 'SET_CONFIG',
     SET_MATRIX: 'SET_MATRIX',
     SET_DESKS: 'SET_DESKS',
@@ -26,7 +25,6 @@ export const initialState: FreeDeskState = {
     desks: [],
     locations: [],
     loading: false,
-    error: null,
     year: 0,
     month: 0,
     confirmDialog: null,
@@ -39,7 +37,6 @@ type Action =
     | {type: typeof ActionTypes.CLOSE_MODAL}
     | {type: typeof ActionTypes.SET_TAB; tab: 'reservation' | 'admin'}
     | {type: typeof ActionTypes.SET_LOADING; loading: boolean}
-    | {type: typeof ActionTypes.SET_ERROR; error: string | null}
     | {type: typeof ActionTypes.SET_CONFIG; config: FreeDeskState['config']}
     | {type: typeof ActionTypes.SET_MATRIX; matrix: FreeDeskState['matrix']}
     | {type: typeof ActionTypes.SET_DESKS; desks: FreeDeskState['desks']}
@@ -54,15 +51,13 @@ type Action =
 export default function reducer(state: FreeDeskState = initialState, action: Action): FreeDeskState {
     switch (action.type) {
     case ActionTypes.OPEN_MODAL:
-        return {...state, modalOpen: true, error: null, errorDialog: null};
+        return {...state, modalOpen: true, errorDialog: null};
     case ActionTypes.CLOSE_MODAL:
-        return {...state, modalOpen: false, confirmDialog: null, error: null, errorDialog: null};
+        return {...state, modalOpen: false, confirmDialog: null, errorDialog: null};
     case ActionTypes.SET_TAB:
         return {...state, activeTab: action.tab};
     case ActionTypes.SET_LOADING:
         return {...state, loading: action.loading};
-    case ActionTypes.SET_ERROR:
-        return {...state, error: action.error};
     case ActionTypes.SET_CONFIG:
         return {...state, config: action.config};
     case ActionTypes.SET_MATRIX:
