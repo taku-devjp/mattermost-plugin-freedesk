@@ -44,11 +44,14 @@ endif
 # Used for semver bumping
 PROTECTED_BRANCH := master
 APP_NAME    := $(shell basename -s .git `git config --get remote.origin.url`)
-CURRENT_VERSION := $(strip $(shell git describe --abbrev=0 --tags))
+CURRENT_VERSION := $(strip $(shell git describe --abbrev=0 --tags 2>/dev/null))
 LATEST_RELEASE_TAG_RAW := $(shell git tag -l "v*" --sort=-v:refname | grep -v '\-rc' | head -n 1 || true)
 LATEST_RELEASE_TAG := $(strip $(LATEST_RELEASE_TAG_RAW))
 ifeq ($(LATEST_RELEASE_TAG),)
 LATEST_RELEASE_TAG := $(CURRENT_VERSION)
+endif
+ifeq ($(CURRENT_VERSION),)
+CURRENT_VERSION := $(LATEST_RELEASE_TAG)
 endif
 VERSION_PARTS := $(subst ., ,$(subst v,,$(subst -rc, ,$(CURRENT_VERSION))))
 MAJOR := $(word 1,$(VERSION_PARTS))
