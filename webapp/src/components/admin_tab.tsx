@@ -110,41 +110,43 @@ const AdminTab: React.FC = () => {
                 </div>
             </form>
 
-            <table className='freedesk-admin-table'>
-                <thead>
-                    <tr>
-                        <th>{labels.name}</th>
-                        <th>{labels.sortOrder}</th>
-                        <th>{labels.status}</th>
-                        <th>{labels.actions}</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {desks.map((desk) => (
-                        <tr key={desk.id}>
-                            <td>{desk.name}</td>
-                            <td>{desk.sort_order}</td>
-                            <td>{desk.is_active ? labels.active : labels.inactive}</td>
-                            <td>
-                                <button
-                                    type='button'
-                                    className='btn btn-tertiary btn-xs'
-                                    onClick={() => startEdit(desk)}
-                                >
-                                    {labels.edit}
-                                </button>
-                                <button
-                                    type='button'
-                                    className='btn btn-tertiary btn-xs'
-                                    onClick={() => handleDelete(desk)}
-                                >
-                                    {labels.delete}
-                                </button>
-                            </td>
+            <div className='freedesk-admin-table-wrap'>
+                <table className='freedesk-admin-table'>
+                    <thead>
+                        <tr>
+                            <th>{labels.name}</th>
+                            <th>{labels.sortOrder}</th>
+                            <th>{labels.status}</th>
+                            <th>{labels.actions}</th>
                         </tr>
-                    ))}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {desks.map((desk) => (
+                            <tr key={desk.id}>
+                                <td>{desk.name}</td>
+                                <td>{desk.sort_order}</td>
+                                <td>{desk.is_active ? labels.active : labels.inactive}</td>
+                                <td>
+                                    <button
+                                        type='button'
+                                        className='btn btn-tertiary btn-xs'
+                                        onClick={() => startEdit(desk)}
+                                    >
+                                        {labels.edit}
+                                    </button>
+                                    <button
+                                        type='button'
+                                        className='btn btn-tertiary btn-xs'
+                                        onClick={() => handleDelete(desk)}
+                                    >
+                                        {labels.delete}
+                                    </button>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
 
             {confirmDialog && confirmDialog.action === 'delete_desk' && (
                 <ConfirmDialog

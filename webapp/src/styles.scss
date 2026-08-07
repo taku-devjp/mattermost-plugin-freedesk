@@ -16,6 +16,7 @@
     border-radius: 8px;
     width: min(90vw, 1200px);
     min-width: 80vw;
+    height: 90vh;
     max-height: 90vh;
     display: flex;
     flex-direction: column;
@@ -439,8 +440,13 @@
     flex-direction: column;
     flex: 1;
     min-height: 0;
-    overflow: auto;
     gap: 16px;
+}
+
+.freedesk-admin-table-wrap {
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
 }
 
 .freedesk-admin-heading {
