@@ -216,6 +216,10 @@
     font-weight: 500;
     background: rgba(var(--center-channel-color-rgb, 51, 51, 51), 0.04);
     white-space: nowrap;
+
+    &--past {
+        color: rgba(var(--center-channel-color-rgb, 51, 51, 51), 0.55);
+    }
 }
 
 .freedesk-matrix-cell {
@@ -236,8 +240,22 @@
     }
 
     &--past {
-        background: rgba(var(--center-channel-color-rgb, 51, 51, 51), 0.03);
-        color: rgba(var(--center-channel-color-rgb, 51, 51, 51), 0.5);
+        &.freedesk-matrix-cell--empty {
+            color: rgba(var(--center-channel-color-rgb, 51, 51, 51), 0.45);
+            background: rgba(var(--center-channel-color-rgb, 51, 51, 51), 0.03);
+        }
+
+        &.freedesk-matrix-cell--mine {
+            background: rgba(var(--online-indicator-rgb, 6, 195, 70), 0.1);
+            color: rgba(var(--center-channel-color-rgb, 51, 51, 51), 0.8);
+            font-weight: 600;
+        }
+
+        &.freedesk-matrix-cell--occupied {
+            background: rgba(var(--center-channel-color-rgb, 51, 51, 51), 0.05);
+            color: rgba(var(--center-channel-color-rgb, 51, 51, 51), 0.85);
+            font-size: 12px;
+        }
     }
 
     &--clickable {

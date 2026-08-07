@@ -21,14 +21,15 @@ function findReservation(reservations: MatrixReservation[], deskId: string, date
 
 function getCellClassName(isPast: boolean, isMine: boolean, isOthers: boolean, isClickable: boolean): string {
     let cellClass = 'freedesk-matrix-cell';
-    if (isPast) {
-        cellClass += ' freedesk-matrix-cell--past';
-    } else if (isMine) {
+    if (isMine) {
         cellClass += ' freedesk-matrix-cell--mine';
     } else if (isOthers) {
         cellClass += ' freedesk-matrix-cell--occupied';
     } else {
         cellClass += ' freedesk-matrix-cell--empty';
+    }
+    if (isPast) {
+        cellClass += ' freedesk-matrix-cell--past';
     }
     if (isClickable) {
         cellClass += ' freedesk-matrix-cell--clickable';
@@ -36,12 +37,9 @@ function getCellClassName(isPast: boolean, isMine: boolean, isOthers: boolean, i
     return cellClass;
 }
 
-function getCellContent(reservation: MatrixReservation | undefined, isPast: boolean): string {
+function getCellContent(reservation: MatrixReservation | undefined): string {
     if (reservation) {
         return reservation.user_name;
-    }
-    if (isPast) {
-        return '';
     }
     return labels.emptySlot;
 }
@@ -203,18 +201,19 @@ const MatrixTable: React.FC<Props> = ({matrix, isPluginAdmin}) => {
                     <table className='freedesk-matrix freedesk-matrix--body'>
                         {renderColgroup()}
                         <tbody>
-                            {matrix.dates.map((date) => (
+                            {matrix.dates.map((date) => {
+                                const isPast = date < matrix.today;
+                                return (
                                 <tr key={date}>
-                                    <td className='freedesk-matrix-date'>{formatDateLabel(date)}</td>
+                                    <td className={`freedesk-matrix-date${isPast ? ' freedesk-matrix-date--past' : ''}`}>{formatDateLabel(date)}</td>
                                     {matrix.desks.map((desk) => {
                                         const reservation = findReservation(matrix.reservations, desk.id, date);
-                                        const isPast = date < matrix.today;
                                         const isBookable = !isPast && !reservation;
                                         const isMine = Boolean(reservation?.is_mine);
                                         const isOthers = Boolean(reservation && !reservation.is_mine);
                                         const isClickable = isBookable || isMine || (isOthers && isPluginAdmin);
                                         const cellClass = getCellClassName(isPast, isMine, isOthers, isClickable);
-                                        const cellContent = getCellContent(reservation, isPast);
+                                        const cellContent = getCellContent(reservation);
 
                                         return (
                                             <td
@@ -230,7 +229,8 @@ const MatrixTable: React.FC<Props> = ({matrix, isPluginAdmin}) => {
                                         );
                                     })}
                                 </tr>
-                            ))}
+                                );
+                            })}
                         </tbody>
                     </table>
                 </div>
