@@ -261,13 +261,33 @@
     }
 }
 
+$freedesk-past-stripe-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8' viewBox='0 0 8 8'%3E%3Cline x1='0' y1='8' x2='8' y2='0' stroke='white' stroke-width='1' shape-rendering='crispEdges'/%3E%3C/svg%3E");
+
+@mixin freedesk-past-stripe-overlay {
+    position: relative;
+
+    &::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background-color: rgba(var(--center-channel-color-rgb, 51, 51, 51), 0.11);
+        mask-image: $freedesk-past-stripe-mask;
+        mask-size: 8px 8px;
+        mask-repeat: repeat;
+        -webkit-mask-image: $freedesk-past-stripe-mask;
+        -webkit-mask-size: 8px 8px;
+        -webkit-mask-repeat: repeat;
+        pointer-events: none;
+    }
+}
+
 .freedesk-matrix-date {
     font-weight: 500;
     background: rgba(var(--center-channel-color-rgb, 51, 51, 51), 0.04);
     white-space: nowrap;
 }
 
-.freedesk-matrix-row--offday {
+.freedesk-matrix-row--offday:not(.freedesk-matrix-row--past) {
     .freedesk-matrix-date {
         color: rgba(var(--center-channel-color-rgb, 51, 51, 51), 0.42);
         background: rgba(var(--center-channel-color-rgb, 51, 51, 51), 0.07);
@@ -276,7 +296,6 @@
 
     .freedesk-matrix-cell--empty {
         background-color: rgba(var(--center-channel-color-rgb, 51, 51, 51), 0.05);
-        background-image: none;
     }
 
     .freedesk-matrix-cell--mine {
@@ -287,22 +306,14 @@
     .freedesk-matrix-cell--occupied {
         background: rgba(var(--center-channel-color-rgb, 51, 51, 51), 0.07);
     }
-
-    .freedesk-matrix-cell--past.freedesk-matrix-cell--empty {
-        background-color: rgba(var(--center-channel-color-rgb, 51, 51, 51), 0.05);
-        background-image: none;
-    }
 }
 
 .freedesk-matrix-row--past {
     .freedesk-matrix-date {
         color: rgba(var(--center-channel-color-rgb, 51, 51, 51), 0.42);
-        background: rgba(var(--center-channel-color-rgb, 51, 51, 51), 0.07);
+        background-color: rgba(var(--center-channel-color-rgb, 51, 51, 51), 0.07);
         font-weight: 400;
-    }
-
-    td {
-        --freedesk-matrix-border-color: rgba(var(--center-channel-color-rgb, 51, 51, 51), 0.08);
+        @include freedesk-past-stripe-overlay;
     }
 }
 
@@ -336,17 +347,11 @@
 
     &--past {
         box-shadow: none;
+        @include freedesk-past-stripe-overlay;
 
         &.freedesk-matrix-cell--empty {
             color: rgba(var(--center-channel-color-rgb, 51, 51, 51), 0.32);
             background-color: rgba(var(--center-channel-color-rgb, 51, 51, 51), 0.05);
-            background-image: repeating-linear-gradient(
-                135deg,
-                rgba(var(--center-channel-color-rgb, 51, 51, 51), 0.07) 0,
-                rgba(var(--center-channel-color-rgb, 51, 51, 51), 0.07) 1px,
-                transparent 1px,
-                transparent 7px
-            );
         }
 
         &.freedesk-matrix-cell--mine {
