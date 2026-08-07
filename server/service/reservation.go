@@ -36,8 +36,12 @@ func newAPIError(code, message string, status int, details map[string]any) *APIE
 // GetMatrix returns matrix data for the given month.
 func (s *Service) GetMatrix(userID string, year, month int, locationID string) (*freedeskmodel.MatrixData, error) {
 	today := utils.Today()
-	maxDays := s.config.GetMaxAdvanceDays()
-	bookableUntil := utils.BookableUntil(maxDays)
+	maxMonths := s.config.GetMaxAdvanceMonths()
+	bookableUntil := utils.BookableUntil(maxMonths)
+	bookableYear, bookableMonth, err := parseYearMonth(bookableUntil)
+	if err != nil {
+		return nil, newAPIError("INVALID_REQUEST", "予約可能期間の算出に失敗しました。", 400, nil)
+	}
 
 	if year == 0 || month == 0 {
 		year, month = utils.CurrentYearMonth()
@@ -46,6 +50,9 @@ func (s *Service) GetMatrix(userID string, year, month int, locationID string) (
 	curYear, curMonth := utils.CurrentYearMonth()
 	if utils.IsBeforeMonth(year, month, curYear, curMonth) {
 		return nil, newAPIError("MONTH_OUT_OF_RANGE", "表示対象月が当月より前です。", 400, nil)
+	}
+	if utils.IsAfterMonth(year, month, bookableYear, bookableMonth) {
+		return nil, newAPIError("MONTH_OUT_OF_RANGE", "表示対象月が予約可能期間外です。", 400, nil)
 	}
 
 	if locationID == "" {
@@ -59,12 +66,7 @@ func (s *Service) GetMatrix(userID string, year, month int, locationID string) (
 	monthStart := utils.FormatDate(utils.MonthStart(year, month))
 	monthEnd := utils.FormatDate(utils.MonthEnd(year, month))
 
-	displayEnd := monthEnd
-	if utils.CompareDates(displayEnd, bookableUntil) > 0 {
-		displayEnd = bookableUntil
-	}
-
-	dates, err := utils.DateRange(monthStart, displayEnd)
+	dates, err := utils.DateRange(monthStart, monthEnd)
 	if err != nil {
 		return nil, newAPIError("INVALID_REQUEST", "日付の算出に失敗しました。", 400, nil)
 	}
@@ -102,9 +104,8 @@ func (s *Service) GetMatrix(userID string, year, month int, locationID string) (
 		})
 	}
 
-	bookableYear, bookableMonth, _ := parseYearMonth(bookableUntil)
 	canGoPrev := utils.IsAfterMonth(year, month, curYear, curMonth)
-	canGoNext := !utils.IsAfterMonth(year, month, bookableYear, bookableMonth)
+	canGoNext := utils.IsBeforeMonth(year, month, bookableYear, bookableMonth)
 
 	return &freedeskmodel.MatrixData{
 		Year:          year,
@@ -171,7 +172,7 @@ func (s *Service) CreateReservation(userID string, req *freedeskmodel.CreateRese
 	}
 
 	today := utils.Today()
-	bookableUntil := utils.BookableUntil(s.config.GetMaxAdvanceDays())
+	bookableUntil := utils.BookableUntil(s.config.GetMaxAdvanceMonths())
 
 	if utils.CompareDates(req.ReserveDate, today) < 0 {
 		return nil, newAPIError("DATE_OUT_OF_RANGE", "昨日以前の日付は予約できません。", 400, nil)

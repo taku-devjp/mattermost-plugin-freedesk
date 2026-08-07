@@ -6,9 +6,11 @@ import (
 )
 
 const (
-	Timezone       = "Asia/Tokyo"
-	DateLayout     = "2006-01-02"
-	DefaultMaxDays = 60
+	Timezone         = "Asia/Tokyo"
+	DateLayout       = "2006-01-02"
+	DefaultMaxMonths = 2
+	MinMaxMonths     = 1
+	MaxMaxMonths     = 6
 )
 
 var location *time.Location
@@ -31,12 +33,29 @@ func Today() string {
 	return Now().Format(DateLayout)
 }
 
-// BookableUntil returns the last bookable date for the given max advance days.
-func BookableUntil(maxAdvanceDays int) string {
-	if maxAdvanceDays <= 0 {
-		maxAdvanceDays = DefaultMaxDays
+// NormalizeMaxAdvanceMonths clamps the setting to the allowed range (1–6 months).
+func NormalizeMaxAdvanceMonths(maxAdvanceMonths int) int {
+	if maxAdvanceMonths <= 0 {
+		return DefaultMaxMonths
 	}
-	return Now().AddDate(0, 0, maxAdvanceDays).Format(DateLayout)
+	if maxAdvanceMonths > MaxMaxMonths {
+		return MaxMaxMonths
+	}
+	if maxAdvanceMonths < MinMaxMonths {
+		return MinMaxMonths
+	}
+	return maxAdvanceMonths
+}
+
+// BookableUntil returns the last day of the month that is maxAdvanceMonths after today.
+func BookableUntil(maxAdvanceMonths int) string {
+	return bookableUntilFrom(Now(), maxAdvanceMonths)
+}
+
+func bookableUntilFrom(now time.Time, maxAdvanceMonths int) string {
+	maxAdvanceMonths = NormalizeMaxAdvanceMonths(maxAdvanceMonths)
+	target := now.AddDate(0, maxAdvanceMonths, 0)
+	return FormatDate(MonthEnd(target.Year(), int(target.Month())))
 }
 
 // ParseDate parses a YYYY-MM-DD date string.

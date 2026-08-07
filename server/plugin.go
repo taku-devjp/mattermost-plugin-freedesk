@@ -80,8 +80,8 @@ func (p *Plugin) GetEnableNotifications() bool {
 	return p.getConfiguration().GetEnableNotifications()
 }
 
-func (p *Plugin) GetMaxAdvanceDays() int {
-	return p.getConfiguration().GetMaxAdvanceDays()
+func (p *Plugin) GetMaxAdvanceMonths() int {
+	return p.getConfiguration().GetMaxAdvanceMonths()
 }
 
 func (p *Plugin) GetOneDeskPerDay() bool {

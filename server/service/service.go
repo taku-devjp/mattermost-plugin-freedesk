@@ -10,7 +10,7 @@ import (
 type ConfigProvider interface {
 	GetNotificationChannelID() string
 	GetEnableNotifications() bool
-	GetMaxAdvanceDays() int
+	GetMaxAdvanceMonths() int
 	GetOneDeskPerDay() bool
 	GetPluginAdminUserIDs() []string
 	IsPluginAdmin(userID string) bool

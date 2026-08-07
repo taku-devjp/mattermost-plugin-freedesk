@@ -38,11 +38,11 @@
                 "default": true
             },
             {
-                "key": "MaxAdvanceDays",
-                "display_name": "予約可能日数",
+                "key": "MaxAdvanceMonths",
+                "display_name": "予約可能月数",
                 "type": "number",
-                "help_text": "今日から何日先まで予約できるか（デフォルト: 60日 ≒ 約2か月）。",
-                "default": 60
+                "help_text": "今日から何か月先まで予約できるか（1〜6か月、デフォルト: 2か月）。",
+                "default": 2
             },
             {
                 "key": "OneDeskPerDay",

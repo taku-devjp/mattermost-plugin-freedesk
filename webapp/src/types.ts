@@ -1,7 +1,7 @@
 export interface ConfigData {
     timezone: string;
     today: string;
-    max_advance_days: number;
+    max_advance_months: number;
     bookable_until: string;
     one_desk_per_day: boolean;
     notification_enabled: boolean;

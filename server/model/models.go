@@ -74,7 +74,7 @@ type MatrixData struct {
 type ConfigData struct {
 	Timezone            string `json:"timezone"`
 	Today               string `json:"today"`
-	MaxAdvanceDays      int    `json:"max_advance_days"`
+	MaxAdvanceMonths    int    `json:"max_advance_months"`
 	BookableUntil       string `json:"bookable_until"`
 	OneDeskPerDay       bool   `json:"one_desk_per_day"`
 	NotificationEnabled bool   `json:"notification_enabled"`

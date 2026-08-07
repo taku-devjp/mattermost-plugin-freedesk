@@ -67,7 +67,7 @@ starter template の `MattermostAuthorizationRequired` ミドルウェアを全 
 |------|------|
 | タイムゾーン | **Asia/Tokyo 固定**（FR-050）。API レスポンスの `timezone` は常に `"Asia/Tokyo"` |
 | 「今日」 | Asia/Tokyo 0:00 境界（FR-051） |
-| 予約可能日 | 今日 ≦ `reserve_date` ≦ 今日 + `MaxAdvanceDays`（FR-001、FR-011） |
+| 予約可能日 | 今日 ≦ `reserve_date` ≦ 予約可能最終日（`MaxAdvanceMonths` 設定に基づく月末、FR-001、FR-011） |
 | 取消可能日 | 今日 ≦ `reserve_date`（FR-002、FR-052） |
 | 昨日以前 | マトリクス表示のみ。予約・取消 API は `400 DATE_OUT_OF_RANGE` |
 
@@ -518,8 +518,8 @@ v0.1.0 は 1 拠点のみ。将来の多拠点対応（v0.3.0）まで UI では
   "data": {
     "timezone": "Asia/Tokyo",
     "today": "2026-08-06",
-    "max_advance_days": 60,
-    "bookable_until": "2026-10-05",
+    "max_advance_months": 2,
+    "bookable_until": "2026-10-31",
     "one_desk_per_day": true,
     "notification_enabled": true,
     "is_plugin_admin": false
@@ -530,8 +530,8 @@ v0.1.0 は 1 拠点のみ。将来の多拠点対応（v0.3.0）まで UI では
 | フィールド | 説明 |
 |------------|------|
 | `timezone` | 常に `"Asia/Tokyo"`（読み取り専用、FR-050） |
-| `max_advance_days` | 予約可能日数（System Admin が設定変更可、FR-011） |
-| `bookable_until` | 予約可能最終日（`today + max_advance_days`） |
+| `max_advance_months` | 予約可能月数（1〜6、System Admin が設定変更可、FR-011） |
+| `bookable_until` | 予約可能最終日（今日から `max_advance_months` か月先の月末） |
 | `one_desk_per_day` | 1 日 1 デスク制限（FR-004、デフォルト `true`） |
 | `notification_enabled` | 通知 ON/OFF（FR-020） |
 | `is_plugin_admin` | 管理タブ表示可否（FR-046） |
@@ -630,7 +630,7 @@ v0.1.0 では **実装しない**。要件定義書 6.6 の仕様を v0.2.0 で�
 |----------|-----|------------|------|
 | `NotificationChannelID` | text | `""` | 通知投稿先チャンネル ID（FR-032） |
 | `EnableNotifications` | bool | `true` | 予約・取消時のチャンネル通知（FR-020） |
-| `MaxAdvanceDays` | number | `60` | 予約可能日数（約 2 か月、FR-011） |
+| `MaxAdvanceMonths` | number | `2` | 予約可能月数（1〜6 か月、FR-011） |
 | `OneDeskPerDay` | bool | `true` | 1 日 1 デスク制限（FR-004）。変更時は [DB 設計書 §3.3](./database-design.md) に従いユニークインデックスを DROP / CREATE |
 | `PluginAdminUserIDs` | text | `""` | プラグイン管理者ユーザー ID（カンマ区切り） |
 

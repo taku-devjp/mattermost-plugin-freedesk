@@ -13,7 +13,7 @@ import (
 type configuration struct {
 	NotificationChannelID string `json:"NotificationChannelID"`
 	EnableNotifications   *bool  `json:"EnableNotifications"`
-	MaxAdvanceDays        *int   `json:"MaxAdvanceDays"`
+	MaxAdvanceMonths      *int   `json:"MaxAdvanceMonths"`
 	OneDeskPerDay         *bool  `json:"OneDeskPerDay"`
 	PluginAdminUserIDs    string `json:"PluginAdminUserIDs"`
 }
@@ -37,11 +37,11 @@ func (c *configuration) GetEnableNotifications() bool {
 	return *c.EnableNotifications
 }
 
-func (c *configuration) GetMaxAdvanceDays() int {
-	if c == nil || c.MaxAdvanceDays == nil || *c.MaxAdvanceDays <= 0 {
-		return utils.DefaultMaxDays
+func (c *configuration) GetMaxAdvanceMonths() int {
+	if c == nil || c.MaxAdvanceMonths == nil {
+		return utils.DefaultMaxMonths
 	}
-	return *c.MaxAdvanceDays
+	return utils.NormalizeMaxAdvanceMonths(*c.MaxAdvanceMonths)
 }
 
 func (c *configuration) GetOneDeskPerDay() bool {

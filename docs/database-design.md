@@ -41,7 +41,7 @@
 | タイムゾーン | **Asia/Tokyo 固定**（FR-050） |
 | 「今日」の境界 | Asia/Tokyo の **0:00**（FR-051） |
 | `reserve_date` | カレンダー日（`DATE` 型）。アプリ層で Asia/Tokyo の日付として解釈・生成する |
-| 表示・予約可能期間 | 同一。「今日」から約 2 か月先まで（FR-011。日数はプラグイン設定 `MaxAdvanceDays` で変更可） |
+| 表示・予約可能期間 | 同一。「今日」から約 2 か月先まで（FR-011。月数はプラグイン設定 `MaxAdvanceMonths` で 1〜6 か月に変更可） |
 | 昨日以前 | マトリクス表示は可、予約・取消は不可（FR-052） |
 
 ### 1.4 命名規則
@@ -370,7 +370,7 @@ ORDER BY d.sort_order;
 アプリ層で事前チェック:
 
 1. `reserve_date >= today`（Asia/Tokyo）。昨日以前は拒否（FR-052）
-2. `reserve_date <= today + MaxAdvanceDays`（FR-011）
+2. `reserve_date <= bookable_until`（`MaxAdvanceMonths` 設定に基づく月末、FR-011）
 3. デスクが有効（`is_active = TRUE`）
 
 ```sql

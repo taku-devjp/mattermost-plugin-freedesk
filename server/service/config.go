@@ -7,12 +7,12 @@ import (
 
 // GetConfig returns frontend configuration for the current user.
 func (s *Service) GetConfig(userID string) *model.ConfigData {
-	maxDays := s.config.GetMaxAdvanceDays()
+	maxMonths := s.config.GetMaxAdvanceMonths()
 	return &model.ConfigData{
 		Timezone:            utils.Timezone,
 		Today:               utils.Today(),
-		MaxAdvanceDays:      maxDays,
-		BookableUntil:       utils.BookableUntil(maxDays),
+		MaxAdvanceMonths:    maxMonths,
+		BookableUntil:       utils.BookableUntil(maxMonths),
 		OneDeskPerDay:       s.config.GetOneDeskPerDay(),
 		NotificationEnabled: s.config.GetEnableNotifications(),
 		IsPluginAdmin:       s.config.IsPluginAdmin(userID),
