@@ -25,9 +25,9 @@
 }
 
 .freedesk-modal-header {
-    display: grid;
-    grid-template-columns: 1fr auto 1fr;
+    display: flex;
     align-items: center;
+    justify-content: space-between;
     padding: 20px 32px;
     border-bottom: 1px solid rgba(var(--center-channel-color-rgb, 51, 51, 51), 0.12);
 }
@@ -36,7 +36,7 @@
     margin: 0;
     font-size: 18px;
     font-weight: 600;
-    text-align: center;
+    text-align: left;
 }
 
 .freedesk-modal-close {
@@ -47,7 +47,7 @@
     cursor: pointer;
     color: inherit;
     padding: 0 4px;
-    justify-self: end;
+    flex-shrink: 0;
 }
 
 .freedesk-modal-tabs {
@@ -125,23 +125,31 @@
 }
 
 .freedesk-matrix-toolbar {
-    display: grid;
-    grid-template-columns: 1fr auto 1fr;
+    display: flex;
     align-items: center;
+    justify-content: space-between;
 }
 
 .freedesk-matrix-month {
     font-weight: 600;
     font-size: 18px;
-    text-align: center;
+    text-align: left;
 }
 
-.freedesk-matrix-toolbar-action {
-    justify-self: end;
+.freedesk-matrix-toolbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
 }
 
-.freedesk-matrix-toolbar-action--prev {
-    justify-self: start;
+.freedesk-matrix-toolbar-btn {
+    transition: none;
+}
+
+.freedesk-matrix-toolbar-btn--hidden {
+    visibility: hidden;
+    pointer-events: none;
 }
 
 .freedesk-matrix-table-wrap {

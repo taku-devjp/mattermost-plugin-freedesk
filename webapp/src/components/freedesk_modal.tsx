@@ -40,7 +40,6 @@ const FreeDeskModal: React.FC = () => {
                 aria-label={labels.modalTitle}
             >
                 <div className='freedesk-modal-header'>
-                    <div className='freedesk-modal-header-spacer'/>
                     <h2 className='freedesk-modal-title'>{labels.modalTitle}</h2>
                     <button
                         type='button'

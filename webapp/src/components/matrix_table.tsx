@@ -169,33 +169,31 @@ const MatrixTable: React.FC<Props> = ({matrix, isPluginAdmin}) => {
     return (
         <div className='freedesk-matrix-container'>
             <div className='freedesk-matrix-toolbar'>
-                <div className='freedesk-matrix-toolbar-action freedesk-matrix-toolbar-action--prev'>
-                    {matrix.can_go_prev && (
-                        <button
-                            type='button'
-                            className='btn btn-tertiary btn-sm'
-                            onClick={handlePrevMonth}
-                        >
-                            {labels.prevMonth}
-                        </button>
-                    )}
-                </div>
                 <span className='freedesk-matrix-month'>
                     {matrix.year}
                     {labels.yearSuffix}
                     {matrix.month}
                     {labels.monthSuffix}
                 </span>
-                <div className='freedesk-matrix-toolbar-action'>
-                    {matrix.can_go_next && (
-                        <button
-                            type='button'
-                            className='btn btn-tertiary btn-sm'
-                            onClick={handleNextMonth}
-                        >
-                            {labels.nextMonth}
-                        </button>
-                    )}
+                <div className='freedesk-matrix-toolbar-actions'>
+                    <button
+                        type='button'
+                        className={`btn btn-tertiary btn-sm freedesk-matrix-toolbar-btn${matrix.can_go_prev ? '' : ' freedesk-matrix-toolbar-btn--hidden'}`}
+                        onClick={matrix.can_go_prev ? handlePrevMonth : undefined}
+                        aria-hidden={!matrix.can_go_prev}
+                        tabIndex={matrix.can_go_prev ? 0 : -1}
+                    >
+                        {labels.prevMonth}
+                    </button>
+                    <button
+                        type='button'
+                        className={`btn btn-tertiary btn-sm freedesk-matrix-toolbar-btn${matrix.can_go_next ? '' : ' freedesk-matrix-toolbar-btn--hidden'}`}
+                        onClick={matrix.can_go_next ? handleNextMonth : undefined}
+                        aria-hidden={!matrix.can_go_next}
+                        tabIndex={matrix.can_go_next ? 0 : -1}
+                    >
+                        {labels.nextMonth}
+                    </button>
                 </div>
             </div>
             <div
