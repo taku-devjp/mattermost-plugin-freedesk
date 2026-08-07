@@ -134,11 +134,13 @@ func (s *Service) resolveUserName(userID string) string {
 	if err != nil || user == nil {
 		return userID
 	}
-	name := formatUserFullName(user)
-	if name == "" {
-		name = user.Username
+	if user.Nickname != "" {
+		return user.Nickname
 	}
-	return name
+	if name := formatUserFullName(user); name != "" {
+		return name
+	}
+	return user.Username
 }
 
 func formatUserFullName(user *model.User) string {

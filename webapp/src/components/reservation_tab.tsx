@@ -24,6 +24,11 @@ const ReservationTab: React.FC = () => {
 
     return (
         <div className='freedesk-reservation-tab'>
+            <p className='freedesk-nickname-hint'>
+                {labels.nicknameHintBefore}
+                <strong>ニックネーム</strong>
+                {labels.nicknameHintAfter}
+            </p>
             <MatrixTable
                 matrix={matrix}
                 isPluginAdmin={config.is_plugin_admin}
