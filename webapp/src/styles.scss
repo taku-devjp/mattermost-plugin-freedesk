@@ -26,10 +26,18 @@
 
 .freedesk-modal-header {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: space-between;
+    gap: 16px;
     padding: 20px 32px;
     border-bottom: 1px solid rgba(var(--center-channel-color-rgb, 51, 51, 51), 0.12);
+}
+
+.freedesk-modal-header-main {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
 }
 
 .freedesk-modal-title {
@@ -110,10 +118,12 @@
 }
 
 .freedesk-nickname-hint {
-    margin: 0 0 12px;
+    margin: 0;
     font-size: 13px;
+    font-weight: 400;
     color: rgba(var(--center-channel-color-rgb, 51, 51, 51), 0.72);
     line-height: 1.5;
+    text-align: left;
 }
 
 .freedesk-matrix-container {
