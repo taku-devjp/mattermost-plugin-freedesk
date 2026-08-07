@@ -134,11 +134,24 @@ func (s *Service) resolveUserName(userID string) string {
 	if err != nil || user == nil {
 		return userID
 	}
-	name := user.GetDisplayName(model.ShowFullName)
+	name := formatUserFullName(user)
 	if name == "" {
 		name = user.Username
 	}
 	return name
+}
+
+func formatUserFullName(user *model.User) string {
+	if user.FirstName != "" && user.LastName != "" {
+		return user.LastName + " " + user.FirstName
+	}
+	if user.FirstName != "" {
+		return user.FirstName
+	}
+	if user.LastName != "" {
+		return user.LastName
+	}
+	return ""
 }
 
 // GetMyReservations returns the user's reservations from today onward.
