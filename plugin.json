@@ -4,7 +4,7 @@
     "description": "Mattermost plugin for free desk (hot desk) reservations.",
     "homepage_url": "https://github.com/taku-devjp/mattermost-plugin-freedesk",
     "support_url": "https://github.com/taku-devjp/mattermost-plugin-freedesk/issues",
-    "icon_path": "assets/starter-template-icon.svg",
+    "icon_path": "assets/freedesk-icon.svg",
     "min_server_version": "9.0.0",
     "server": {
         "executables": {

@@ -16,7 +16,8 @@ export default class Plugin {
         registry.registerReducer({reducer: reducer as Reducer<unknown, UnknownAction>});
         registry.registerRootComponent(FreeDeskModal);
 
-        const iconUrl = `/plugins/${manifest.id}/${manifest.icon_path}`;
+        // App Bar icons must be served from public/ (assets/ is bundle-only).
+        const iconUrl = `/plugins/${manifest.id}/public/freedesk-icon.svg?v=${encodeURIComponent(manifest.version)}`;
         registry.registerAppBarComponent(
             iconUrl,
             () => store.dispatch(openModal()),
