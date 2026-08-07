@@ -28,6 +28,7 @@ export const labels = {
     dateHeader: '日付',
     yearSuffix: '年',
     monthSuffix: '月',
+    prevMonth: '← 前月',
     nextMonth: '翌月 →',
     emptySlot: '—',
     available: '空き',

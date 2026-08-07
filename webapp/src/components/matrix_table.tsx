@@ -119,6 +119,16 @@ const MatrixTable: React.FC<Props> = ({matrix, isPluginAdmin}) => {
         }
     }, [dispatch, isPluginAdmin, matrix.reservations, matrix.today]);
 
+    const handlePrevMonth = useCallback(() => {
+        let prevYear = matrix.year;
+        let prevMonth = matrix.month - 1;
+        if (prevMonth < 1) {
+            prevMonth = 12;
+            prevYear -= 1;
+        }
+        loadMatrix(dispatch, prevYear, prevMonth);
+    }, [dispatch, matrix.month, matrix.year]);
+
     const handleNextMonth = useCallback(() => {
         let nextYear = matrix.year;
         let nextMonth = matrix.month + 1;
@@ -159,7 +169,17 @@ const MatrixTable: React.FC<Props> = ({matrix, isPluginAdmin}) => {
     return (
         <div className='freedesk-matrix-container'>
             <div className='freedesk-matrix-toolbar'>
-                <div className='freedesk-matrix-toolbar-spacer'/>
+                <div className='freedesk-matrix-toolbar-action freedesk-matrix-toolbar-action--prev'>
+                    {matrix.can_go_prev && (
+                        <button
+                            type='button'
+                            className='btn btn-tertiary btn-sm'
+                            onClick={handlePrevMonth}
+                        >
+                            {labels.prevMonth}
+                        </button>
+                    )}
+                </div>
                 <span className='freedesk-matrix-month'>
                     {matrix.year}
                     {labels.yearSuffix}
@@ -203,9 +223,16 @@ const MatrixTable: React.FC<Props> = ({matrix, isPluginAdmin}) => {
                         <tbody>
                             {matrix.dates.map((date) => {
                                 const isPast = date < matrix.today;
+                                const isToday = date === matrix.today;
+                                const rowClass = isPast ?
+                                    'freedesk-matrix-row--past' :
+                                    (isToday ? 'freedesk-matrix-row--today' : '');
                                 return (
-                                <tr key={date}>
-                                    <td className={`freedesk-matrix-date${isPast ? ' freedesk-matrix-date--past' : ''}`}>{formatDateLabel(date)}</td>
+                                <tr
+                                    key={date}
+                                    className={rowClass || undefined}
+                                >
+                                    <td className='freedesk-matrix-date'>{formatDateLabel(date)}</td>
                                     {matrix.desks.map((desk) => {
                                         const reservation = findReservation(matrix.reservations, desk.id, date);
                                         const isBookable = !isPast && !reservation;
