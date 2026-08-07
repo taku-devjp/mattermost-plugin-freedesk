@@ -8,6 +8,7 @@ export const labels = {
     updating: '更新中...',
     noData: 'データがありません。',
     confirm: '確認',
+    errorTitle: 'エラー',
     cancel: 'キャンセル',
     ok: 'OK',
     deskLabel: 'デスク:',

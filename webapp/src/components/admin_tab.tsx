@@ -11,7 +11,7 @@ import {getPluginStateFromGlobal} from '../types/mattermost';
 
 const AdminTab: React.FC = () => {
     const dispatch = useDispatch();
-    const {desks, locations, adminSaving, error, confirmDialog} = useSelector((state: GlobalState) => getPluginStateFromGlobal(state));
+    const {desks, locations, adminSaving, confirmDialog} = useSelector((state: GlobalState) => getPluginStateFromGlobal(state));
     const defaultLocationId = locations[0]?.id || '';
 
     const [editingId, setEditingId] = useState<string | null>(null);
@@ -145,8 +145,6 @@ const AdminTab: React.FC = () => {
                     ))}
                 </tbody>
             </table>
-
-            {error && <div className='freedesk-error'>{error}</div>}
 
             {confirmDialog && confirmDialog.action === 'delete_desk' && (
                 <ConfirmDialog

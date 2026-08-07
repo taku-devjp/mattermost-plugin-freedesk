@@ -2,16 +2,17 @@ import React, {useEffect} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 
 import AdminTab from './admin_tab';
+import ErrorDialog from './error_dialog';
 import ReservationTab from './reservation_tab';
 
-import {closeModal, loadModalData, setTab} from '../actions';
+import {closeModal, hideError, loadModalData, setTab} from '../actions';
 import {labels} from '../labels';
 import type {GlobalState} from '../types/mattermost';
 import {getPluginStateFromGlobal} from '../types/mattermost';
 
 const FreeDeskModal: React.FC = () => {
     const dispatch = useDispatch();
-    const {modalOpen, activeTab, config, loading} = useSelector((state: GlobalState) => getPluginStateFromGlobal(state));
+    const {modalOpen, activeTab, config, loading, errorDialog} = useSelector((state: GlobalState) => getPluginStateFromGlobal(state));
 
     useEffect(() => {
         if (modalOpen) {
@@ -79,6 +80,12 @@ const FreeDeskModal: React.FC = () => {
                     )}
                 </div>
             </div>
+            {errorDialog && (
+                <ErrorDialog
+                    message={errorDialog}
+                    onClose={() => dispatch(hideError())}
+                />
+            )}
         </div>
     );
 };

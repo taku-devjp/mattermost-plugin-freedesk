@@ -13,6 +13,8 @@ export const ActionTypes = {
     SET_MONTH: 'SET_MONTH',
     SHOW_CONFIRM: 'SHOW_CONFIRM',
     HIDE_CONFIRM: 'HIDE_CONFIRM',
+    SHOW_ERROR: 'SHOW_ERROR',
+    HIDE_ERROR: 'HIDE_ERROR',
     SET_ADMIN_SAVING: 'SET_ADMIN_SAVING',
 } as const;
 
@@ -28,6 +30,7 @@ export const initialState: FreeDeskState = {
     year: 0,
     month: 0,
     confirmDialog: null,
+    errorDialog: null,
     adminSaving: false,
 };
 
@@ -44,14 +47,16 @@ type Action =
     | {type: typeof ActionTypes.SET_MONTH; year: number; month: number}
     | {type: typeof ActionTypes.SHOW_CONFIRM; dialog: FreeDeskState['confirmDialog']}
     | {type: typeof ActionTypes.HIDE_CONFIRM}
+    | {type: typeof ActionTypes.SHOW_ERROR; message: string}
+    | {type: typeof ActionTypes.HIDE_ERROR}
     | {type: typeof ActionTypes.SET_ADMIN_SAVING; saving: boolean};
 
 export default function reducer(state: FreeDeskState = initialState, action: Action): FreeDeskState {
     switch (action.type) {
     case ActionTypes.OPEN_MODAL:
-        return {...state, modalOpen: true, error: null};
+        return {...state, modalOpen: true, error: null, errorDialog: null};
     case ActionTypes.CLOSE_MODAL:
-        return {...state, modalOpen: false, confirmDialog: null, error: null};
+        return {...state, modalOpen: false, confirmDialog: null, error: null, errorDialog: null};
     case ActionTypes.SET_TAB:
         return {...state, activeTab: action.tab};
     case ActionTypes.SET_LOADING:
@@ -77,6 +82,10 @@ export default function reducer(state: FreeDeskState = initialState, action: Act
         return {...state, confirmDialog: action.dialog};
     case ActionTypes.HIDE_CONFIRM:
         return {...state, confirmDialog: null};
+    case ActionTypes.SHOW_ERROR:
+        return {...state, errorDialog: action.message};
+    case ActionTypes.HIDE_ERROR:
+        return {...state, errorDialog: null};
     case ActionTypes.SET_ADMIN_SAVING:
         return {...state, adminSaving: action.saving};
     default:

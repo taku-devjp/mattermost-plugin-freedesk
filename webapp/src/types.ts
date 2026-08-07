@@ -85,6 +85,7 @@ export interface FreeDeskState {
     year: number;
     month: number;
     confirmDialog: ConfirmDialogState | null;
+    errorDialog: string | null;
     adminSaving: boolean;
 }
 

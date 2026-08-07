@@ -20,6 +20,7 @@ export function getPluginState(state: { [key: string]: unknown }): FreeDeskState
         year: 0,
         month: 0,
         confirmDialog: null,
+        errorDialog: null,
         adminSaving: false,
     };
 }
@@ -42,6 +43,14 @@ export function showConfirm(dialog: ConfirmDialogState) {
 
 export function hideConfirm() {
     return {type: ActionTypes.HIDE_CONFIRM};
+}
+
+export function showError(message: string) {
+    return {type: ActionTypes.SHOW_ERROR, message};
+}
+
+export function hideError() {
+    return {type: ActionTypes.HIDE_ERROR};
 }
 
 export async function loadModalData(dispatch: Dispatch) {
@@ -97,7 +106,7 @@ export async function reloadAdminDesks(dispatch: Dispatch) {
 export async function executeConfirm(dispatch: Dispatch, dialog: ConfirmDialogState, year: number, month: number) {
     dispatch({type: ActionTypes.SET_LOADING, loading: true});
     dispatch({type: ActionTypes.HIDE_CONFIRM});
-    dispatch({type: ActionTypes.SET_ERROR, error: null});
+    dispatch({type: ActionTypes.HIDE_ERROR});
     try {
         switch (dialog.action) {
         case 'book':
@@ -129,7 +138,7 @@ export async function executeConfirm(dispatch: Dispatch, dialog: ConfirmDialogSt
         }
     } catch (err) {
         const message = err instanceof client.APIError ? err.message : '操作に失敗しました。';
-        dispatch({type: ActionTypes.SET_ERROR, error: message});
+        dispatch({type: ActionTypes.SHOW_ERROR, message});
     } finally {
         dispatch({type: ActionTypes.SET_LOADING, loading: false});
     }
@@ -141,7 +150,7 @@ export async function saveDesk(
     payload: {location_id: string; name: string; sort_order: number; is_active: boolean},
 ) {
     dispatch({type: ActionTypes.SET_ADMIN_SAVING, saving: true});
-    dispatch({type: ActionTypes.SET_ERROR, error: null});
+    dispatch({type: ActionTypes.HIDE_ERROR});
     try {
         if (deskId) {
             await client.updateDesk(deskId, {
@@ -157,7 +166,7 @@ export async function saveDesk(
         dispatch({type: ActionTypes.SET_MATRIX, matrix});
     } catch (err) {
         const message = err instanceof client.APIError ? err.message : 'デスクの保存に失敗しました。';
-        dispatch({type: ActionTypes.SET_ERROR, error: message});
+        dispatch({type: ActionTypes.SHOW_ERROR, message});
     } finally {
         dispatch({type: ActionTypes.SET_ADMIN_SAVING, saving: false});
     }

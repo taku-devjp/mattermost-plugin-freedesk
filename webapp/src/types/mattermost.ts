@@ -20,6 +20,7 @@ export function getPluginStateFromGlobal(state: GlobalState): FreeDeskState {
         year: 0,
         month: 0,
         confirmDialog: null,
+        errorDialog: null,
         adminSaving: false,
     };
 }

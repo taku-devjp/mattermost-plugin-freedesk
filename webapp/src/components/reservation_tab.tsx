@@ -24,7 +24,6 @@ const ReservationTab: React.FC = () => {
 
     return (
         <div className='freedesk-reservation-tab'>
-            {error && <div className='freedesk-error'>{error}</div>}
             <MatrixTable
                 matrix={matrix}
                 isPluginAdmin={config.is_plugin_admin}
