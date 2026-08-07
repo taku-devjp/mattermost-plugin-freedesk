@@ -103,6 +103,7 @@ func (s *Service) GetMatrix(userID string, year, month int, locationID string) (
 	}
 
 	bookableYear, bookableMonth, _ := parseYearMonth(bookableUntil)
+	canGoPrev := utils.IsAfterMonth(year, month, curYear, curMonth)
 	canGoNext := !utils.IsAfterMonth(year, month, bookableYear, bookableMonth)
 
 	return &freedeskmodel.MatrixData{
@@ -111,7 +112,7 @@ func (s *Service) GetMatrix(userID string, year, month int, locationID string) (
 		Timezone:      utils.Timezone,
 		Today:         today,
 		BookableUntil: bookableUntil,
-		CanGoPrev:     false,
+		CanGoPrev:     canGoPrev,
 		CanGoNext:     canGoNext,
 		Desks:         matrixDesks,
 		Dates:         dates,
