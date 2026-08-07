@@ -7,6 +7,7 @@ import (
 	"github.com/pkg/errors"
 
 	freedeskmodel "github.com/taku-devjp/mattermost-plugin-freedesk/server/model"
+	"github.com/taku-devjp/mattermost-plugin-freedesk/server/store/sqlstore"
 	"github.com/taku-devjp/mattermost-plugin-freedesk/server/utils"
 )
 
@@ -50,6 +51,9 @@ func (s *Service) CreateDesk(req *freedeskmodel.CreateDeskRequest) (*freedeskmod
 	}
 
 	if err := s.store.CreateDesk(desk); err != nil {
+		if errors.Is(err, sqlstore.ErrUniqueViolation) {
+			return nil, newAPIError("DESK_ALREADY_EXISTS", "同じ名称のデスクが既に存在します。", 409, nil)
+		}
 		return nil, errors.Wrap(err, "failed to create desk")
 	}
 
@@ -81,6 +85,9 @@ func (s *Service) UpdateDesk(deskID string, req *freedeskmodel.UpdateDeskRequest
 	if err := s.store.UpdateDesk(desk); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, newAPIError("DESK_NOT_FOUND", "デスクが見つかりません。", 404, nil)
+		}
+		if errors.Is(err, sqlstore.ErrUniqueViolation) {
+			return nil, newAPIError("DESK_ALREADY_EXISTS", "同じ名称のデスクが既に存在します。", 409, nil)
 		}
 		return nil, errors.Wrap(err, "failed to update desk")
 	}

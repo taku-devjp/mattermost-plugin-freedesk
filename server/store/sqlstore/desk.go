@@ -2,6 +2,7 @@ package sqlstore
 
 import (
 	"database/sql"
+	"fmt"
 
 	"github.com/pkg/errors"
 
@@ -81,7 +82,13 @@ func (s *SQLStore) CreateDesk(desk *freedeskmodel.Desk) error {
 	}
 
 	_, err = s.db.Exec(query, args...)
-	return errors.Wrap(err, "failed to create desk")
+	if err != nil {
+		if isUniqueViolation(err) {
+			return fmt.Errorf("%w: %v", ErrUniqueViolation, err)
+		}
+		return errors.Wrap(err, "failed to create desk")
+	}
+	return nil
 }
 
 // UpdateDesk updates desk fields.
@@ -100,6 +107,9 @@ func (s *SQLStore) UpdateDesk(desk *freedeskmodel.Desk) error {
 
 	result, err := s.db.Exec(query, args...)
 	if err != nil {
+		if isUniqueViolation(err) {
+			return fmt.Errorf("%w: %v", ErrUniqueViolation, err)
+		}
 		return errors.Wrap(err, "failed to update desk")
 	}
 	rows, err := result.RowsAffected()
