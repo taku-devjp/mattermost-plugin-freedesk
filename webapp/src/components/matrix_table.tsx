@@ -8,7 +8,7 @@ import {labels} from '../labels';
 import type {MatrixData, MatrixReservation} from '../types';
 import type {GlobalState} from '../types/mattermost';
 import {getPluginStateFromGlobal} from '../types/mattermost';
-import {formatDateLabel} from '../utils/date';
+import {formatDateLabel, isOffDay} from '../utils/date';
 
 interface Props {
     matrix: MatrixData;
@@ -42,6 +42,16 @@ function getCellContent(reservation: MatrixReservation | undefined): string {
         return reservation.user_name;
     }
     return labels.emptySlot;
+}
+
+function getRowClassName(date: string, isPast: boolean, isToday: boolean): string | undefined {
+    const classes = [
+        isPast ? 'freedesk-matrix-row--past' : '',
+        isToday ? 'freedesk-matrix-row--today' : '',
+        isOffDay(date) ? 'freedesk-matrix-row--offday' : '',
+    ].filter(Boolean);
+
+    return classes.length > 0 ? classes.join(' ') : undefined;
 }
 
 const MatrixTable: React.FC<Props> = ({matrix, isPluginAdmin}) => {
@@ -222,13 +232,11 @@ const MatrixTable: React.FC<Props> = ({matrix, isPluginAdmin}) => {
                             {matrix.dates.map((date) => {
                                 const isPast = date < matrix.today;
                                 const isToday = date === matrix.today;
-                                const rowClass = isPast ?
-                                    'freedesk-matrix-row--past' :
-                                    (isToday ? 'freedesk-matrix-row--today' : '');
+                                const rowClass = getRowClassName(date, isPast, isToday);
                                 return (
                                 <tr
                                     key={date}
-                                    className={rowClass || undefined}
+                                    className={rowClass}
                                 >
                                     <td className='freedesk-matrix-date'>{formatDateLabel(date)}</td>
                                     {matrix.desks.map((desk) => {
