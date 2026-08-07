@@ -31,7 +31,6 @@ export const labels = {
     monthSuffix: '月',
     prevMonth: '← 前月',
     nextMonth: '翌月 →',
-    emptySlot: '—',
     available: '空き',
     nicknameHintBefore: 'プロフィール設定で',
     nicknameHintAfter: 'を設定してください。設定した名前が予約名として表示されます。',

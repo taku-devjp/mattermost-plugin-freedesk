@@ -38,10 +38,7 @@ function getCellClassName(isPast: boolean, isMine: boolean, isOthers: boolean, i
 }
 
 function getCellContent(reservation: MatrixReservation | undefined): string {
-    if (reservation) {
-        return reservation.user_name;
-    }
-    return labels.emptySlot;
+    return reservation?.user_name ?? '';
 }
 
 function getRowClassName(date: string, isPast: boolean, isToday: boolean): string | undefined {
